@@ -51,6 +51,7 @@ export async function POST(request: Request) {
                 ref: repo.ref,
                 paths: repo.selectedPaths,
                 token: room.secrets.gitToken,
+                username: room.secrets.bitbucketUsername,
               })
             : await fetchGithubContents({
                 owner: repo.owner,

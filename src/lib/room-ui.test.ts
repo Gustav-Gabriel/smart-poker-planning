@@ -151,6 +151,16 @@ describe("translateError", () => {
     expect(translateError("Bitbucket request timed out")).toBe(
       "O Bitbucket demorou demais para responder. Tente novamente.",
     );
+    expect(translateError("Bitbucket repository not found")).toBe(
+      "Repositório do Bitbucket não encontrado — ou privado sem autenticação válida (App Password + usuário, ou Access Token).",
+    );
+    expect(
+      translateError(
+        "Bitbucket repository not found. If private, use App Password with username, or an Access Token.",
+      ),
+    ).toBe(
+      "Repositório do Bitbucket não encontrado — ou privado sem autenticação válida (App Password + usuário, ou Access Token).",
+    );
   });
 
   it("never exposes hostToken in user-facing text", () => {

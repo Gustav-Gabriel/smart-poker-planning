@@ -17,12 +17,14 @@ export type CreateRoomFields = {
   jiraEmail: string;
   jiraToken: string;
   gitToken: string;
+  bitbucketUsername: string;
   hostName: string;
   hostEmoji: string;
 };
 
 export function buildRoomPayload(fields: CreateRoomFields) {
   const gitToken = fields.gitToken.trim();
+  const bitbucketUsername = fields.bitbucketUsername.trim();
   return {
     name: fields.roomName.trim(),
     deck: fields.deck,
@@ -35,6 +37,7 @@ export function buildRoomPayload(fields: CreateRoomFields) {
       jiraEmail: fields.jiraEmail.trim(),
       jiraToken: fields.jiraToken.trim(),
       ...(gitToken ? { gitToken } : {}),
+      ...(bitbucketUsername ? { bitbucketUsername } : {}),
     },
   };
 }
@@ -68,6 +71,7 @@ export function CreateRoomForm() {
       jiraEmail: String(form.get("jiraEmail") ?? ""),
       jiraToken: String(form.get("jiraToken") ?? ""),
       gitToken: String(form.get("gitToken") ?? ""),
+      bitbucketUsername: String(form.get("bitbucketUsername") ?? ""),
       hostName: String(form.get("hostName") ?? ""),
       hostEmoji: String(form.get("hostEmoji") ?? "🃏"),
     };
@@ -195,13 +199,20 @@ export function CreateRoomForm() {
             required
           />
           <InputField
+            id="bitbucketUsername"
+            name="bitbucketUsername"
+            label="Usuário Bitbucket"
+            placeholder="Opcional — para App Password"
+            autoComplete="username"
+          />
+          <InputField
             id="gitToken"
             name="gitToken"
             label="Token Git (GitHub / Bitbucket)"
             type="password"
             placeholder="Opcional"
             autoComplete="off"
-            hint="Opcional — repositórios privados. No Bitbucket, use um access token (Bearer), não usuário+app password."
+            hint="Opcional — repositórios privados. GitHub: PAT. Bitbucket: Access Token (Bearer), ou App Password quando o usuário estiver preenchido."
           />
         </div>
       </section>

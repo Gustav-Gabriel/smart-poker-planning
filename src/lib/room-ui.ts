@@ -174,11 +174,11 @@ const ERROR_TRANSLATIONS: Array<[RegExp, string]> = [
   ],
   [
     /bitbucket authentication failed/i,
-    "Falha na autenticação do Bitbucket. Verifique o token de acesso (Bearer).",
+    "Falha na autenticação do Bitbucket. Verifique o Access Token ou App Password + usuário.",
   ],
   [
     /bitbucket repository not found/i,
-    "Repositório do Bitbucket não encontrado.",
+    "Repositório do Bitbucket não encontrado — ou privado sem autenticação válida (App Password + usuário, ou Access Token).",
   ],
   [
     /invalid bitbucket repository url/i,

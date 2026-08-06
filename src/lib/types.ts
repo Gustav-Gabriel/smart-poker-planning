@@ -73,6 +73,7 @@ export type RoomSecrets = {
   jiraEmail: string;
   jiraToken: string;
   gitToken?: string;
+  bitbucketUsername?: string;
 };
 
 export type ClientPlayer = Omit<Player, never> & { hasVoted: boolean };

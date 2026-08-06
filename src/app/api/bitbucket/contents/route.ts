@@ -67,6 +67,7 @@ export async function POST(request: Request) {
       ref,
       paths,
       token: room.secrets.gitToken,
+      username: room.secrets.bitbucketUsername,
     });
 
     return NextResponse.json(result);

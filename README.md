@@ -19,9 +19,10 @@ As credenciais sensíveis **não** vão para variáveis de ambiente do servidor.
 
 - **Copiloto de IA** — provedor (OpenAI, Gemini ou Claude) e chave da API
 - **Jira** — URL do site, e-mail e token de acesso (para importar histórias)
-- **Token Git** — opcional, para repositórios privados no GitHub ou Bitbucket Cloud. No Bitbucket, use um **access token** (Bearer); usuário+app password não é suportado.
+- **Token Git** — opcional, para repositórios privados no GitHub ou Bitbucket Cloud. No Bitbucket: **Access Token** (Bearer) sozinho, ou **App Password** junto com o campo **Usuário Bitbucket** (Basic).
+- **Usuário Bitbucket** — opcional; necessário apenas com App Password.
 
-URLs de repositório do **Bitbucket Cloud** (`bitbucket.org/workspace/repo`) funcionam no anexo de arquivos da sala, assim como GitHub.
+URLs de repositório do **Bitbucket Cloud** (`bitbucket.org/workspace/repo`) funcionam no anexo de arquivos da sala, assim como GitHub. Links de navegação com branch (`…/src/{branch}/…`) carregam essa branch em vez da default.
 
 Essas chaves ficam apenas na memória do processo, vinculadas à sala, e são descartadas quando a sala expira (~2 h sem atividade) ou o servidor reinicia.
 

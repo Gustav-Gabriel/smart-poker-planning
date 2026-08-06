@@ -48,6 +48,7 @@ export async function GET(request: Request) {
     const result = await listRepoTreeFromUrl({
       url,
       token: room.secrets.gitToken,
+      username: room.secrets.bitbucketUsername,
     });
 
     return NextResponse.json(result);

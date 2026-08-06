@@ -130,6 +130,38 @@ describe("validateCreateRoomInput", () => {
       }),
     ).toEqual({ error: "Host name is required" });
   });
+
+  it("includes optional git token and Bitbucket username when set", () => {
+    const result = validateCreateRoomInput({
+      name: "Sprint 12",
+      deck: "fibonacci",
+      hostName: "Ana",
+      hostAvatar: { type: "emoji", value: "🎯" },
+      secrets: {
+        ...validSecrets,
+        gitToken: "  app-password  ",
+        bitbucketUsername: "  ana  ",
+      },
+    });
+    expect(result).toMatchObject({
+      secrets: {
+        gitToken: "app-password",
+        bitbucketUsername: "ana",
+      },
+    });
+  });
+
+  it("rejects blank optional Bitbucket username", () => {
+    expect(
+      validateCreateRoomInput({
+        name: "Sprint 12",
+        deck: "fibonacci",
+        hostName: "Ana",
+        hostAvatar: { type: "emoji", value: "🎯" },
+        secrets: { ...validSecrets, bitbucketUsername: "   " },
+      }),
+    ).toEqual({ error: "Invalid Bitbucket username" });
+  });
 });
 
 describe("validateJoinNameAvatar", () => {

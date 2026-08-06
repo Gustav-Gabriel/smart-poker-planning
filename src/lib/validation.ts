@@ -106,6 +106,13 @@ export function validateCreateRoomInput(
     gitToken = clamped;
   }
 
+  let bitbucketUsername: string | undefined;
+  if (secrets.bitbucketUsername !== undefined) {
+    const clamped = clampString(secrets.bitbucketUsername, MAX_SECRET_LENGTH);
+    if (!clamped) return { error: "Invalid Bitbucket username" };
+    bitbucketUsername = clamped;
+  }
+
   return {
     name,
     deck: value.deck as DeckType,
@@ -118,6 +125,7 @@ export function validateCreateRoomInput(
       jiraEmail,
       jiraToken,
       ...(gitToken ? { gitToken } : {}),
+      ...(bitbucketUsername ? { bitbucketUsername } : {}),
     },
   };
 }
