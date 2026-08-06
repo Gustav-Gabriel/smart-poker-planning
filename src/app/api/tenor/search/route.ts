@@ -18,7 +18,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const results = await searchTenor(q, apiKey);
+    const results = await searchTenor(q);
     return NextResponse.json({ results });
   } catch {
     return NextResponse.json(

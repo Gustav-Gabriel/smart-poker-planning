@@ -19,7 +19,12 @@ type TenorSearchResponse = {
   }>;
 };
 
-export async function searchTenor(q: string, apiKey: string): Promise<TenorGif[]> {
+export async function searchTenor(q: string): Promise<TenorGif[]> {
+  const apiKey = process.env.TENOR_API_KEY;
+  if (!apiKey) {
+    throw new Error("TENOR_API_KEY is not configured");
+  }
+
   const params = new URLSearchParams({
     q,
     key: apiKey,
