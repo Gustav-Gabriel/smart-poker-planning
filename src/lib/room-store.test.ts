@@ -89,6 +89,7 @@ describe("room-store", () => {
     });
     const again = rejoinRoom(created.room.code, created.player.id);
     expect(again.ok).toBe(true);
-    expect(again.player?.isHost).toBe(true);
+    if (!again.ok) throw new Error(again.error);
+    expect(again.player.isHost).toBe(true);
   });
 });
