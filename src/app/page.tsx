@@ -17,13 +17,10 @@ export default function Home() {
           <p className="eyebrow">
             <span aria-hidden="true">✦</span> Planning poker com contexto
           </p>
-          <h1>
-            Estimativas melhores começam com{" "}
-            <em>conversas mais inteligentes.</em>
-          </h1>
+          <h1>Smart Planning Poker</h1>
           <p className="hero__support">
-            Planeje com seu time e use IA, Jira e repositórios para transformar
-            contexto disperso em decisões mais claras.
+            Estimativas melhores começam com conversas mais inteligentes —
+            com IA, Jira e repositórios no mesmo lugar.
           </p>
           <div className="hero__actions">
             <Link className={buttonClassName("primary")} href="/create">
