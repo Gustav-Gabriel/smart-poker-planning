@@ -11,3 +11,13 @@ it("parses https github urls", () => {
 it("strips .git suffix", () => {
   expect(parseGithubUrl("https://github.com/acme/api.git").repo).toBe("api");
 });
+
+it("preserves dotted repository names", () => {
+  expect(parseGithubUrl("https://github.com/acme/my.repo")).toEqual({
+    owner: "acme",
+    repo: "my.repo",
+  });
+  expect(parseGithubUrl("https://github.com/acme/my.repo.git").repo).toBe(
+    "my.repo",
+  );
+});

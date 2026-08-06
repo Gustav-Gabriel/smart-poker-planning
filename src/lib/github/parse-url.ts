@@ -1,5 +1,5 @@
 const GITHUB_URL_PATTERN =
-  /(?:https?:\/\/)?(?:www\.)?github\.com\/([^/?#]+)\/([^/?#.]+)/i;
+  /(?:https?:\/\/)?(?:www\.)?github\.com\/([^/?#]+)\/([^/?#]+)/i;
 
 export function parseGithubUrl(url: string): { owner: string; repo: string } {
   const match = url.match(GITHUB_URL_PATTERN);
