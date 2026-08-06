@@ -1,5 +1,6 @@
 "use client";
 
+import { DEEP_ANALYSIS_UI_ENABLED } from "@/lib/feature-flags";
 import { formatOmittedWarning, latestSuggestion } from "@/lib/room-ui";
 import type { AiSuggestion } from "@/lib/types";
 
@@ -37,7 +38,9 @@ export function SuggestionsPanel({
   deepError,
 }: SuggestionsPanelProps) {
   const summary = latestSuggestion(suggestions, "summary");
-  const deep = latestSuggestion(suggestions, "deep");
+  const deep = DEEP_ANALYSIS_UI_ENABLED
+    ? latestSuggestion(suggestions, "deep")
+    : undefined;
 
   if (!revealed && !summary && !deep && !summaryPending) {
     return (
@@ -79,78 +82,81 @@ export function SuggestionsPanel({
         ) : null}
       </div>
 
-      <div className="suggestion-block">
-        <h3>Análise profunda</h3>
-        {deepPending ? (
-          <p className="panel__empty">Analisando repositórios…</p>
-        ) : null}
-        {deepError ? (
-          <p className="form-error" role="alert">
-            {deepError}
-          </p>
-        ) : null}
-        {deep?.omitted && deep.omitted.length > 0 ? (
-          <p className="form-warning" role="status">
-            {formatOmittedWarning(deep.omitted)}
-          </p>
-        ) : null}
-        {deep ? (
-          <div className="suggestion-card">
-            <SuggestedScoreBlock suggestedScore={deep.payload.suggestedScore} />
-            <p>{deep.payload.consensusNote}</p>
-            {deep.payload.risks && deep.payload.risks.length > 0 ? (
-              <div>
-                <h4>Riscos</h4>
-                <ul>
-                  {deep.payload.risks.map((item, index) => (
-                    <li key={index}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-            {deep.payload.unplannedWork && deep.payload.unplannedWork.length > 0 ? (
-              <div>
-                <h4>Trabalho não planejado</h4>
-                <ul>
-                  {deep.payload.unplannedWork.map((item, index) => (
-                    <li key={index}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-            {deep.payload.relevantFiles && deep.payload.relevantFiles.length > 0 ? (
-              <div>
-                <h4>Arquivos relevantes</h4>
-                <ul>
-                  {deep.payload.relevantFiles.map((file) => (
-                    <li key={file.path}>
-                      <code>{file.path}</code> — {file.reason}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-            {deep.payload.openQuestions && deep.payload.openQuestions.length > 0 ? (
-              <div>
-                <h4>Perguntas em aberto</h4>
-                <ul>
-                  {deep.payload.openQuestions.map((item, index) => (
-                    <li key={index}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-            {deep.payload.estimateTension ? (
-              <p className="suggestion-card__tension">{deep.payload.estimateTension}</p>
-            ) : null}
-          </div>
-        ) : !deepPending ? (
-          <p className="panel__empty">
-            Disponível após revelar os votos. Anexe um repositório para uma análise
-            mais rica.
-          </p>
-        ) : null}
-      </div>
+      {/* TODO: gated by DEEP_ANALYSIS_UI_ENABLED — re-enable when latency/cost is acceptable */}
+      {DEEP_ANALYSIS_UI_ENABLED ? (
+        <div className="suggestion-block">
+          <h3>Análise profunda</h3>
+          {deepPending ? (
+            <p className="panel__empty">Analisando repositórios…</p>
+          ) : null}
+          {deepError ? (
+            <p className="form-error" role="alert">
+              {deepError}
+            </p>
+          ) : null}
+          {deep?.omitted && deep.omitted.length > 0 ? (
+            <p className="form-warning" role="status">
+              {formatOmittedWarning(deep.omitted)}
+            </p>
+          ) : null}
+          {deep ? (
+            <div className="suggestion-card">
+              <SuggestedScoreBlock suggestedScore={deep.payload.suggestedScore} />
+              <p>{deep.payload.consensusNote}</p>
+              {deep.payload.risks && deep.payload.risks.length > 0 ? (
+                <div>
+                  <h4>Riscos</h4>
+                  <ul>
+                    {deep.payload.risks.map((item, index) => (
+                      <li key={index}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+              {deep.payload.unplannedWork && deep.payload.unplannedWork.length > 0 ? (
+                <div>
+                  <h4>Trabalho não planejado</h4>
+                  <ul>
+                    {deep.payload.unplannedWork.map((item, index) => (
+                      <li key={index}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+              {deep.payload.relevantFiles && deep.payload.relevantFiles.length > 0 ? (
+                <div>
+                  <h4>Arquivos relevantes</h4>
+                  <ul>
+                    {deep.payload.relevantFiles.map((file) => (
+                      <li key={file.path}>
+                        <code>{file.path}</code> — {file.reason}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+              {deep.payload.openQuestions && deep.payload.openQuestions.length > 0 ? (
+                <div>
+                  <h4>Perguntas em aberto</h4>
+                  <ul>
+                    {deep.payload.openQuestions.map((item, index) => (
+                      <li key={index}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+              {deep.payload.estimateTension ? (
+                <p className="suggestion-card__tension">{deep.payload.estimateTension}</p>
+              ) : null}
+            </div>
+          ) : !deepPending ? (
+            <p className="panel__empty">
+              Disponível após revelar os votos. Anexe um repositório para uma análise
+              mais rica.
+            </p>
+          ) : null}
+        </div>
+      ) : null}
     </section>
   );
 }

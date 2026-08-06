@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { AvatarPicker } from "@/components/avatar-picker";
 import { translateError } from "@/lib/room-ui";
 import { saveSession } from "@/lib/session-client";
 import { getSocket } from "@/lib/socket/client";
@@ -15,7 +16,7 @@ export type CreateRoomFields = {
   aiProvider: AiProvider;
   gitToken: string;
   hostName: string;
-  hostEmoji: string;
+  hostAvatar: Player["avatar"];
 };
 
 export function buildRoomPayload(fields: CreateRoomFields) {
@@ -24,7 +25,7 @@ export function buildRoomPayload(fields: CreateRoomFields) {
     name: fields.roomName.trim(),
     deck: fields.deck,
     hostName: fields.hostName.trim(),
-    hostAvatar: { type: "emoji" as const, value: fields.hostEmoji },
+    hostAvatar: fields.hostAvatar,
     secrets: {
       aiProvider: fields.aiProvider,
       ...(gitToken ? { gitToken } : {}),
@@ -43,6 +44,10 @@ type CreateAck =
 
 export function CreateRoomForm() {
   const router = useRouter();
+  const [hostAvatar, setHostAvatar] = useState<Player["avatar"]>({
+    type: "emoji",
+    value: "🃏",
+  });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -58,7 +63,7 @@ export function CreateRoomForm() {
       aiProvider: String(form.get("aiProvider")) as AiProvider,
       gitToken: String(form.get("gitToken") ?? ""),
       hostName: String(form.get("hostName") ?? ""),
-      hostEmoji: String(form.get("hostEmoji") ?? "🃏"),
+      hostAvatar,
     };
 
     getSocket()
@@ -188,18 +193,10 @@ export function CreateRoomForm() {
             autoComplete="name"
             required
           />
-          <SelectField
-            id="hostEmoji"
-            name="hostEmoji"
-            label="Avatar"
-            defaultValue="🃏"
-          >
-            <option value="🃏">🃏 Coringa</option>
-            <option value="🚀">🚀 Foguete</option>
-            <option value="🦊">🦊 Raposa</option>
-            <option value="🐙">🐙 Polvo</option>
-            <option value="🌵">🌵 Cacto</option>
-          </SelectField>
+          <div className="field">
+            <p className="field-label">Avatar</p>
+            <AvatarPicker value={hostAvatar} onChange={setHostAvatar} />
+          </div>
         </div>
       </section>
 

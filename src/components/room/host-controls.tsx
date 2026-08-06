@@ -14,6 +14,7 @@ import {
   listZipPaths,
   type ZipHandle,
 } from "@/lib/local-repo/read-zip";
+import { DEEP_ANALYSIS_UI_ENABLED } from "@/lib/feature-flags";
 import type { MutationAck } from "@/lib/room-ui";
 import { translateError } from "@/lib/room-ui";
 import { getSocket } from "@/lib/socket/client";
@@ -298,16 +299,19 @@ export function HostControls({
         <Button type="button" variant="secondary" onClick={onReset} disabled={!revealed}>
           Nova rodada
         </Button>
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={onDeepAnalysis}
-          disabled={!revealed || deepPending}
-        >
-          {deepPending ? "Analisando…" : "Análise profunda"}
-        </Button>
+        {/* TODO: gated by DEEP_ANALYSIS_UI_ENABLED — re-enable when latency/cost is acceptable */}
+        {DEEP_ANALYSIS_UI_ENABLED ? (
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={onDeepAnalysis}
+            disabled={!revealed || deepPending}
+          >
+            {deepPending ? "Analisando…" : "Análise profunda"}
+          </Button>
+        ) : null}
       </div>
-      {deepError ? (
+      {DEEP_ANALYSIS_UI_ENABLED && deepError ? (
         <p className="form-error" role="alert">
           {deepError}
         </p>
