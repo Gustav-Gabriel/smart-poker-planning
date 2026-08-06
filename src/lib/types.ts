@@ -10,6 +10,7 @@ export type Player = {
 };
 
 export type RepoAttachment = {
+  provider: "github" | "bitbucket";
   url: string;
   owner: string;
   repo: string;
@@ -71,7 +72,7 @@ export type RoomSecrets = {
   jiraSite: string;
   jiraEmail: string;
   jiraToken: string;
-  githubToken?: string;
+  gitToken?: string;
 };
 
 export type ClientPlayer = Omit<Player, never> & { hasVoted: boolean };

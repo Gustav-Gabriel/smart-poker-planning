@@ -3,11 +3,11 @@ import { assertHost } from "@/lib/host-auth";
 import { checkRoomRateLimit, RATE_LIMIT_MESSAGE } from "@/lib/rate-limit";
 import { getRoom } from "@/lib/room-store";
 import {
-  GithubAuthError,
-  GithubNotFoundError,
+  BitbucketAuthError,
+  BitbucketNotFoundError,
   fetchSelectedContentsFromUrl,
-} from "@/lib/github/client";
-import { parseGithubUrl } from "@/lib/github/parse-url";
+} from "@/lib/bitbucket/client";
+import { parseBitbucketUrl } from "@/lib/bitbucket/parse-url";
 
 type ContentsRequestBody = {
   roomCode?: string;
@@ -53,7 +53,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    parseGithubUrl(url);
+    parseBitbucketUrl(url);
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Invalid URL" },
@@ -71,16 +71,16 @@ export async function POST(request: Request) {
 
     return NextResponse.json(result);
   } catch (error) {
-    if (error instanceof GithubAuthError) {
+    if (error instanceof BitbucketAuthError) {
       return NextResponse.json({ error: error.message }, { status: 401 });
     }
 
-    if (error instanceof GithubNotFoundError) {
+    if (error instanceof BitbucketNotFoundError) {
       return NextResponse.json({ error: error.message }, { status: 404 });
     }
 
     return NextResponse.json(
-      { error: "Failed to fetch GitHub contents" },
+      { error: "Failed to fetch Bitbucket contents" },
       { status: 502 },
     );
   }

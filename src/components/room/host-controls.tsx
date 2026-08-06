@@ -21,6 +21,19 @@ type HostControlsProps = {
 
 type TreeResult = { owner: string; repo: string; ref: string; paths: string[] };
 
+function detectRepoProvider(url: string): "github" | "bitbucket" {
+  try {
+    const withScheme = /:\/\//.test(url) ? url : `https://${url}`;
+    const hostname = new URL(withScheme).hostname.toLowerCase();
+    if (hostname.includes("bitbucket.org")) {
+      return "bitbucket";
+    }
+  } catch {
+    // Fall through to GitHub when the URL cannot be parsed.
+  }
+  return "github";
+}
+
 export function HostControls({
   roomCode,
   hostToken,
@@ -35,6 +48,9 @@ export function HostControls({
   const [repoUrl, setRepoUrl] = useState("");
   const [loadingTree, setLoadingTree] = useState(false);
   const [tree, setTree] = useState<TreeResult | null>(null);
+  const [treeProvider, setTreeProvider] = useState<"github" | "bitbucket">(
+    "github",
+  );
   const [selectedPaths, setSelectedPaths] = useState<string[]>([]);
   const [pathFilter, setPathFilter] = useState("");
   const [repoError, setRepoError] = useState("");
@@ -45,6 +61,7 @@ export function HostControls({
     const trimmedUrl = repoUrl.trim();
     if (!hostToken || !trimmedUrl) return;
 
+    const provider = detectRepoProvider(trimmedUrl);
     setLoadingTree(true);
     setRepoError("");
     setTree(null);
@@ -54,13 +71,16 @@ export function HostControls({
         hostToken,
         url: trimmedUrl,
       });
-      const response = await fetch(`/api/github/tree?${params.toString()}`);
+      const apiPath =
+        provider === "bitbucket" ? "/api/bitbucket/tree" : "/api/github/tree";
+      const response = await fetch(`${apiPath}?${params.toString()}`);
       const data = (await response.json()) as TreeResult & { error?: string };
       if (!response.ok) {
         setRepoError(translateError(data.error));
         return;
       }
       setTree(data);
+      setTreeProvider(provider);
       setSelectedPaths([]);
     } catch {
       setRepoError("Falha de rede ao carregar o repositório.");
@@ -80,6 +100,7 @@ export function HostControls({
 
     setSaving(true);
     const nextRepo: RepoAttachment = {
+      provider: treeProvider,
       url: repoUrl.trim(),
       owner: tree.owner,
       repo: tree.repo,
@@ -185,8 +206,8 @@ export function HostControls({
             type="url"
             value={repoUrl}
             onChange={(event) => setRepoUrl(event.target.value)}
-            placeholder="https://github.com/org/repositorio"
-            aria-label="URL do repositório GitHub"
+            placeholder="https://github.com/org/repo ou https://bitbucket.org/workspace/repo"
+            aria-label="URL do repositório GitHub ou Bitbucket"
           />
           <Button type="submit" variant="secondary" disabled={loadingTree}>
             {loadingTree ? "Carregando…" : "Carregar arquivos"}

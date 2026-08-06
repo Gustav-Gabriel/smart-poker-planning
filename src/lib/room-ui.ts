@@ -119,6 +119,7 @@ const ERROR_TRANSLATIONS: Array<[RegExp, string]> = [
   [/jira site is required/i, "Informe o site do Jira."],
   [/jira email is required/i, "Informe o e-mail do Jira."],
   [/jira token is required/i, "Informe o token do Jira."],
+  [/invalid git token/i, "Token Git inválido."],
   [/invalid github token/i, "Token do GitHub inválido."],
   [/invalid room payload/i, "Dados da sala inválidos."],
   [/invalid name/i, "Nome inválido."],
@@ -130,6 +131,10 @@ const ERROR_TRANSLATIONS: Array<[RegExp, string]> = [
   [
     /github request timed out/i,
     "O GitHub demorou demais para responder. Tente novamente.",
+  ],
+  [
+    /bitbucket request timed out/i,
+    "O Bitbucket demorou demais para responder. Tente novamente.",
   ],
   [
     /klipy request timed out/i,
@@ -168,6 +173,31 @@ const ERROR_TRANSLATIONS: Array<[RegExp, string]> = [
     "Formato de arquivo do GitHub não suportado.",
   ],
   [
+    /bitbucket authentication failed/i,
+    "Falha na autenticação do Bitbucket. Verifique o token de acesso (Bearer).",
+  ],
+  [
+    /bitbucket repository not found/i,
+    "Repositório do Bitbucket não encontrado.",
+  ],
+  [
+    /invalid bitbucket repository url/i,
+    "Link de repositório do Bitbucket inválido.",
+  ],
+  [
+    /failed to fetch bitbucket tree/i,
+    "Não foi possível listar os arquivos do repositório no Bitbucket.",
+  ],
+  [
+    /failed to fetch bitbucket contents/i,
+    "Não foi possível buscar os arquivos selecionados no Bitbucket.",
+  ],
+  [/bitbucket request failed/i, "Falha ao comunicar com o Bitbucket."],
+  [
+    /bitbucket repository has no main branch/i,
+    "O repositório do Bitbucket não tem branch principal.",
+  ],
+  [
     /roomcode, hosttoken, url, ref, and paths are required/i,
     "Dados do repositório incompletos.",
   ],
@@ -177,7 +207,7 @@ const ERROR_TRANSLATIONS: Array<[RegExp, string]> = [
   ],
   [
     /roomcode, hosttoken, and url are required/i,
-    "Informe o link do repositório no GitHub.",
+    "Informe o link do repositório no GitHub ou Bitbucket.",
   ],
   [/roomcode and hosttoken are required/i, "Dados obrigatórios ausentes."],
   [/roomcode, hosttoken/i, "Dados obrigatórios ausentes."],

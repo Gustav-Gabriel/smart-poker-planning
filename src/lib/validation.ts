@@ -99,11 +99,11 @@ export function validateCreateRoomInput(
   const jiraToken = clampString(secrets.jiraToken, MAX_SECRET_LENGTH);
   if (!jiraToken) return { error: "Jira token is required" };
 
-  let githubToken: string | undefined;
-  if (secrets.githubToken !== undefined) {
-    const clamped = clampString(secrets.githubToken, MAX_SECRET_LENGTH);
-    if (!clamped) return { error: "Invalid GitHub token" };
-    githubToken = clamped;
+  let gitToken: string | undefined;
+  if (secrets.gitToken !== undefined) {
+    const clamped = clampString(secrets.gitToken, MAX_SECRET_LENGTH);
+    if (!clamped) return { error: "Invalid Git token" };
+    gitToken = clamped;
   }
 
   return {
@@ -117,7 +117,7 @@ export function validateCreateRoomInput(
       jiraSite,
       jiraEmail,
       jiraToken,
-      ...(githubToken ? { githubToken } : {}),
+      ...(gitToken ? { gitToken } : {}),
     },
   };
 }

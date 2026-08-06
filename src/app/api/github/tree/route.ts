@@ -47,7 +47,7 @@ export async function GET(request: Request) {
   try {
     const result = await listRepoTreeFromUrl({
       url,
-      token: room.secrets.githubToken,
+      token: room.secrets.gitToken,
     });
 
     return NextResponse.json(result);

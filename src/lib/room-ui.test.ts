@@ -127,6 +127,9 @@ describe("translateError", () => {
     expect(translateError("Failed to fetch GitHub tree")).toBe(
       "Não foi possível listar os arquivos do repositório no GitHub.",
     );
+    expect(translateError("Failed to fetch Bitbucket tree")).toBe(
+      "Não foi possível listar os arquivos do repositório no Bitbucket.",
+    );
     expect(translateError("roomCode and hostToken are required")).toBe(
       "Dados obrigatórios ausentes.",
     );
@@ -144,6 +147,9 @@ describe("translateError", () => {
     );
     expect(translateError("GitHub request timed out")).toBe(
       "O GitHub demorou demais para responder. Tente novamente.",
+    );
+    expect(translateError("Bitbucket request timed out")).toBe(
+      "O Bitbucket demorou demais para responder. Tente novamente.",
     );
   });
 

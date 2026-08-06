@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { runDeepAnalysis } from "@/lib/ai/providers";
-import { fetchSelectedContents } from "@/lib/github/client";
+import { fetchSelectedContents as fetchBitbucketContents } from "@/lib/bitbucket/client";
+import { fetchSelectedContents as fetchGithubContents } from "@/lib/github/client";
 import { assertHost } from "@/lib/host-auth";
 import { checkRoomRateLimit, RATE_LIMIT_MESSAGE } from "@/lib/rate-limit";
 import { getRoom, touchRoom } from "@/lib/room-store";
@@ -42,13 +43,22 @@ export async function POST(request: Request) {
   try {
     const repositories = await Promise.all(
       room.repos.map(async (repo) => {
-        const contents = await fetchSelectedContents({
-          owner: repo.owner,
-          repo: repo.repo,
-          ref: repo.ref,
-          paths: repo.selectedPaths,
-          token: room.secrets.githubToken,
-        });
+        const contents =
+          repo.provider === "bitbucket"
+            ? await fetchBitbucketContents({
+                workspace: repo.owner,
+                repo: repo.repo,
+                ref: repo.ref,
+                paths: repo.selectedPaths,
+                token: room.secrets.gitToken,
+              })
+            : await fetchGithubContents({
+                owner: repo.owner,
+                repo: repo.repo,
+                ref: repo.ref,
+                paths: repo.selectedPaths,
+                token: room.secrets.gitToken,
+              });
         return {
           repository: `${repo.owner}/${repo.repo}`,
           ref: repo.ref,

@@ -16,13 +16,13 @@ export type CreateRoomFields = {
   jiraSite: string;
   jiraEmail: string;
   jiraToken: string;
-  githubToken: string;
+  gitToken: string;
   hostName: string;
   hostEmoji: string;
 };
 
 export function buildRoomPayload(fields: CreateRoomFields) {
-  const githubToken = fields.githubToken.trim();
+  const gitToken = fields.gitToken.trim();
   return {
     name: fields.roomName.trim(),
     deck: fields.deck,
@@ -34,7 +34,7 @@ export function buildRoomPayload(fields: CreateRoomFields) {
       jiraSite: fields.jiraSite.trim().replace(/\/+$/, ""),
       jiraEmail: fields.jiraEmail.trim(),
       jiraToken: fields.jiraToken.trim(),
-      ...(githubToken ? { githubToken } : {}),
+      ...(gitToken ? { gitToken } : {}),
     },
   };
 }
@@ -67,7 +67,7 @@ export function CreateRoomForm() {
       jiraSite: String(form.get("jiraSite") ?? ""),
       jiraEmail: String(form.get("jiraEmail") ?? ""),
       jiraToken: String(form.get("jiraToken") ?? ""),
-      githubToken: String(form.get("githubToken") ?? ""),
+      gitToken: String(form.get("gitToken") ?? ""),
       hostName: String(form.get("hostName") ?? ""),
       hostEmoji: String(form.get("hostEmoji") ?? "🃏"),
     };
@@ -164,7 +164,7 @@ export function CreateRoomForm() {
           <span>03</span>
           <div>
             <h2>Contexto do trabalho</h2>
-            <p>Conecte Jira e GitHub para estimativas mais informadas.</p>
+            <p>Conecte Jira, GitHub e Bitbucket para estimativas mais informadas.</p>
           </div>
         </div>
         <div className="field-grid">
@@ -195,13 +195,13 @@ export function CreateRoomForm() {
             required
           />
           <InputField
-            id="githubToken"
-            name="githubToken"
-            label="Token do GitHub"
+            id="gitToken"
+            name="gitToken"
+            label="Token Git (GitHub / Bitbucket)"
             type="password"
             placeholder="Opcional"
             autoComplete="off"
-            hint="Opcional — necessário apenas para repositórios privados."
+            hint="Opcional — repositórios privados. No Bitbucket, use um access token (Bearer), não usuário+app password."
           />
         </div>
       </section>

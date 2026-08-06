@@ -12,7 +12,7 @@ describe("buildRoomPayload", () => {
         jiraSite: "https://acme.atlassian.net/",
         jiraEmail: "ana@acme.com",
         jiraToken: "jira-key",
-        githubToken: "  ",
+        gitToken: "  ",
         hostName: "  Ana  ",
         hostEmoji: "🚀",
       }),

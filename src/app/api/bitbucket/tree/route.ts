@@ -3,40 +3,23 @@ import { assertHost } from "@/lib/host-auth";
 import { checkRoomRateLimit, RATE_LIMIT_MESSAGE } from "@/lib/rate-limit";
 import { getRoom } from "@/lib/room-store";
 import {
-  GithubAuthError,
-  GithubNotFoundError,
-  fetchSelectedContentsFromUrl,
-} from "@/lib/github/client";
-import { parseGithubUrl } from "@/lib/github/parse-url";
+  BitbucketAuthError,
+  BitbucketNotFoundError,
+  listRepoTreeFromUrl,
+} from "@/lib/bitbucket/client";
+import { parseBitbucketUrl } from "@/lib/bitbucket/parse-url";
 
-type ContentsRequestBody = {
-  roomCode?: string;
-  hostToken?: string;
-  url?: string;
-  ref?: string;
-  paths?: string[];
-};
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const roomCode = searchParams.get("roomCode");
+  const hostToken = searchParams.get("hostToken");
+  const url = searchParams.get("url");
 
-export async function POST(request: Request) {
-  let body: ContentsRequestBody;
-
-  try {
-    body = (await request.json()) as ContentsRequestBody;
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
-  }
-
-  const { roomCode, hostToken, url, ref, paths } = body;
-
-  if (!roomCode || !hostToken || !url || !ref || !paths) {
+  if (!roomCode || !hostToken || !url) {
     return NextResponse.json(
-      { error: "roomCode, hostToken, url, ref, and paths are required" },
+      { error: "roomCode, hostToken, and url are required" },
       { status: 400 },
     );
-  }
-
-  if (!Array.isArray(paths)) {
-    return NextResponse.json({ error: "paths must be an array" }, { status: 400 });
   }
 
   const room = getRoom(roomCode);
@@ -53,7 +36,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    parseGithubUrl(url);
+    parseBitbucketUrl(url);
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Invalid URL" },
@@ -62,25 +45,23 @@ export async function POST(request: Request) {
   }
 
   try {
-    const result = await fetchSelectedContentsFromUrl({
+    const result = await listRepoTreeFromUrl({
       url,
-      ref,
-      paths,
       token: room.secrets.gitToken,
     });
 
     return NextResponse.json(result);
   } catch (error) {
-    if (error instanceof GithubAuthError) {
+    if (error instanceof BitbucketAuthError) {
       return NextResponse.json({ error: error.message }, { status: 401 });
     }
 
-    if (error instanceof GithubNotFoundError) {
+    if (error instanceof BitbucketNotFoundError) {
       return NextResponse.json({ error: error.message }, { status: 404 });
     }
 
     return NextResponse.json(
-      { error: "Failed to fetch GitHub contents" },
+      { error: "Failed to fetch Bitbucket tree" },
       { status: 502 },
     );
   }

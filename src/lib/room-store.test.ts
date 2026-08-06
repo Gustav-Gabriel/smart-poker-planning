@@ -26,7 +26,7 @@ describe("room-store", () => {
         jiraSite: "https://acme.atlassian.net",
         jiraEmail: "ana@acme.com",
         jiraToken: "jira-token",
-        githubToken: undefined,
+        gitToken: undefined,
       },
     });
     expect(room.code).toMatch(/^[A-Z0-9]{6}$/);
