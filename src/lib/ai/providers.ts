@@ -15,6 +15,11 @@ import {
 
 const AI_REQUEST_TIMEOUT_MS = 30_000;
 
+/** Current Gemini Flash model used for chat completions. */
+export const GEMINI_MODEL = "gemini-2.5-flash";
+
+const ERROR_SNIPPET_MAX = 160;
+
 type ChatCompletionInput = {
   provider: AiProvider;
   apiKey: string;
@@ -135,7 +140,7 @@ async function openAiCompletion(input: ChatCompletionInput): Promise<string> {
 async function geminiCompletion(input: ChatCompletionInput): Promise<string> {
   const endpoint =
     "https://generativelanguage.googleapis.com/v1beta/models/" +
-    `gemini-2.0-flash:generateContent?key=${encodeURIComponent(input.apiKey)}`;
+    `${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(input.apiKey)}`;
   const response = await aiFetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -176,10 +181,46 @@ async function claudeCompletion(input: ChatCompletionInput): Promise<string> {
   return text;
 }
 
+function extractProviderErrorSnippet(body: unknown): string | null {
+  if (!body || typeof body !== "object") return null;
+  const record = body as Record<string, unknown>;
+
+  if (typeof record.message === "string" && record.message.trim()) {
+    return record.message.trim();
+  }
+
+  const nested = record.error;
+  if (nested && typeof nested === "object") {
+    const err = nested as Record<string, unknown>;
+    if (typeof err.message === "string" && err.message.trim()) {
+      return err.message.trim();
+    }
+  }
+
+  if (typeof nested === "string" && nested.trim()) {
+    return nested.trim();
+  }
+
+  return null;
+}
+
+/** Build a Portuguese AI provider error including HTTP status and a short body excerpt. */
+export function formatAiProviderError(status: number, body: unknown): string {
+  const raw = extractProviderErrorSnippet(body);
+  if (!raw) {
+    return `Provedor de IA respondeu com status ${status}`;
+  }
+  const snippet =
+    raw.length > ERROR_SNIPPET_MAX
+      ? `${raw.slice(0, ERROR_SNIPPET_MAX - 1)}…`
+      : raw;
+  return `Provedor de IA respondeu com status ${status}: ${snippet}`;
+}
+
 async function readProviderResponse(response: Response): Promise<unknown> {
   const data = (await response.json().catch(() => null)) as unknown;
   if (!response.ok) {
-    throw new Error(`Provedor de IA respondeu com status ${response.status}`);
+    throw new Error(formatAiProviderError(response.status, data));
   }
   return data;
 }

@@ -181,6 +181,26 @@ const ERROR_TRANSLATIONS: Array<[RegExp, string]> = [
     "Arquivo zip inválido ou corrompido.",
   ],
   [
+    /provedor de ia respondeu com status (401|403)/i,
+    "Chave da API de IA inválida ou sem permissão. Verifique a chave configurada na sala.",
+  ],
+  [
+    /provedor de ia respondeu com status 404/i,
+    "Modelo ou endpoint de IA indisponível. Tente atualizar o app ou verificar a chave.",
+  ],
+  [
+    /provedor de ia respondeu com status 429/i,
+    "Quota ou limite do provedor de IA atingido. Aguarde e tente novamente.",
+  ],
+  [
+    /a requisi[cç][aã]o para o provedor de ia expirou/i,
+    "A requisição para o provedor de IA expirou. Tente novamente.",
+  ],
+  [
+    /chave da ia n[aã]o configurada/i,
+    "Chave da IA não configurada",
+  ],
+  [
     /roomcode, hosttoken, url, ref, and paths are required/i,
     "Dados do repositório incompletos.",
   ],
@@ -200,7 +220,7 @@ const ERROR_TRANSLATIONS: Array<[RegExp, string]> = [
 ];
 
 const PORTUGUESE_MARKERS =
-  /\b(não|você|informe|apenas|anfitrião|expirada|participantes|conectado|configurada|demorou|concluir|possível|selecionados|obrigatórios|inválid[oa]s?)\b/i;
+  /\b(não|voce|você|informe|apenas|anfitrião|anfitriao|expirada|expirou|participantes|conectado|configurada|demorou|concluir|possível|possivel|selecionados|obrigatórios|obrigatorios|inválid[oa]s?|invalid[oa]s?|provedor|requisi[cç][aã]o|chave|status|modelo|endpoint|quota|limite|resposta|vazia)\b/i;
 
 function looksEnglishOnly(message: string): boolean {
   if (/[áàâãéêíóôõúç]/i.test(message)) return false;

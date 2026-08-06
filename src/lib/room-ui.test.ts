@@ -170,6 +170,44 @@ describe("translateError", () => {
     );
   });
 
+  it("maps AI provider HTTP failures to actionable Portuguese", () => {
+    expect(
+      translateError("Provedor de IA respondeu com status 401: API key invalid"),
+    ).toBe(
+      "Chave da API de IA inválida ou sem permissão. Verifique a chave configurada na sala.",
+    );
+    expect(
+      translateError("Provedor de IA respondeu com status 403"),
+    ).toBe(
+      "Chave da API de IA inválida ou sem permissão. Verifique a chave configurada na sala.",
+    );
+    expect(
+      translateError(
+        "Provedor de IA respondeu com status 404: models/gemini-2.0-flash is not found",
+      ),
+    ).toBe(
+      "Modelo ou endpoint de IA indisponível. Tente atualizar o app ou verificar a chave.",
+    );
+    expect(translateError("Provedor de IA respondeu com status 429")).toBe(
+      "Quota ou limite do provedor de IA atingido. Aguarde e tente novamente.",
+    );
+  });
+
+  it("keeps accent-free Portuguese AI errors (does not treat as English-only)", () => {
+    expect(
+      translateError("Provedor de IA respondeu com status 502: upstream boom"),
+    ).toBe("Provedor de IA respondeu com status 502: upstream boom");
+    expect(
+      translateError("A requisicao para o provedor de IA expirou"),
+    ).toMatch(/expirou/i);
+  });
+
+  it("maps oversized zip to the 200MB limit message", () => {
+    expect(translateError("Zip archive is too large (max 200MB)")).toBe(
+      "O arquivo zip é grande demais (máx. 200MB).",
+    );
+  });
+
   it("returns a generic message when empty", () => {
     expect(translateError(undefined)).toBe("Ocorreu um erro inesperado.");
   });
