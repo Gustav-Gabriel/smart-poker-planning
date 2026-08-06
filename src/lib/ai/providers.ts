@@ -80,7 +80,7 @@ export async function runSummary(
   return {
     kind: "summary",
     createdAt: Date.now(),
-    payload: parseAiJson(text, "summary"),
+    payload: parseAiJson(text, "summary", input.deck),
   };
 }
 
@@ -106,7 +106,7 @@ export async function runDeepAnalysis(
   return {
     kind: "deep",
     createdAt: Date.now(),
-    payload: parseAiJson(text, "deep"),
+    payload: parseAiJson(text, "deep", input.deck),
   };
 }
 

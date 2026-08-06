@@ -1,3 +1,4 @@
+import { scoreCardsFor } from "../decks";
 import type { AiSuggestion, DeckType, Story } from "../types";
 
 export type VoteContext = {
@@ -24,13 +25,19 @@ export function buildSummaryPrompt(input: {
   votes: VoteContext[];
   deck: DeckType;
 }): string {
+  const allowedScores = scoreCardsFor(input.deck);
   return `Gere um resumo curto após a revelação dos votos.
+Responda em português.
 O JSON deve ter exatamente esta forma:
-{"consensusNote":"string","discussionPoints":["string"]}
+{"consensusNote":"string","discussionPoints":["string"],"suggestedScore":{"value":"string","rationale":"string"}}
 Inclua de 3 a 5 pontos de discussão quando houver informação suficiente.
+suggestedScore.value DEVE ser exatamente um destes valores permitidos: ${JSON.stringify(allowedScores)}.
+Não use "?" nem "☕" como sugestão de pontuação.
+Baseie suggestedScore nos votos; se houver story (Jira), incorpore título/descrição/labels na justificativa.
+Se as evidências forem limitadas, ainda assim sugira um valor permitido e explique a incerteza em rationale (1–2 frases).
 
 Contexto:
-${JSON.stringify(input)}`;
+${JSON.stringify({ ...input, allowedScores })}`;
 }
 
 export function buildDeepPrompt(input: {
@@ -40,11 +47,17 @@ export function buildDeepPrompt(input: {
   repositories: RepositoryContext[];
   priorSummary?: AiSuggestion["payload"];
 }): string {
+  const allowedScores = scoreCardsFor(input.deck);
   return `Faça uma análise técnica aprofundada para apoiar a estimativa.
+Responda em português.
 O JSON deve ter esta forma:
-{"consensusNote":"string","discussionPoints":["string"],"risks":["string"],"unplannedWork":["string"],"relevantFiles":[{"path":"string","reason":"string"}],"openQuestions":["string"],"estimateTension":"string"}
+{"consensusNote":"string","discussionPoints":["string"],"suggestedScore":{"value":"string","rationale":"string"},"risks":["string"],"unplannedWork":["string"],"relevantFiles":[{"path":"string","reason":"string"}],"openQuestions":["string"],"estimateTension":"string"}
 Relacione conclusões a arquivos fornecidos. Considere os arquivos omitidos uma limitação da análise.
+suggestedScore.value DEVE ser exatamente um destes valores permitidos: ${JSON.stringify(allowedScores)}.
+Não use "?" nem "☕" como sugestão de pontuação.
+Você pode revisar priorSummary.suggestedScore quando houver story (Jira) e/ou arquivos de repositório; cite evidências brevemente em rationale.
+Se não houver Jira nem arquivos, sugira com base nos votos (e no resumo anterior, se houver) e deixe a limitação de evidências explícita em rationale (1–2 frases).
 
 Contexto:
-${JSON.stringify(input)}`;
+${JSON.stringify({ ...input, allowedScores })}`;
 }

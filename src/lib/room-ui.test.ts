@@ -9,6 +9,13 @@ import {
 } from "./room-ui";
 import type { AiSuggestion, ClientPlayer } from "./types";
 
+function suggestedScore(
+  value = "5",
+  rationale = "Consenso em torno deste valor.",
+) {
+  return { value, rationale };
+}
+
 function player(overrides: Partial<ClientPlayer> = {}): ClientPlayer {
   return {
     id: "p1",
@@ -65,12 +72,20 @@ describe("mergeSuggestions", () => {
     const a: AiSuggestion = {
       kind: "summary",
       createdAt: 2,
-      payload: { consensusNote: "b", discussionPoints: [] },
+      payload: {
+        consensusNote: "b",
+        discussionPoints: [],
+        suggestedScore: suggestedScore("8"),
+      },
     };
     const b: AiSuggestion = {
       kind: "summary",
       createdAt: 1,
-      payload: { consensusNote: "a", discussionPoints: [] },
+      payload: {
+        consensusNote: "a",
+        discussionPoints: [],
+        suggestedScore: suggestedScore("5"),
+      },
     };
     const bDuplicate: AiSuggestion = { ...b };
     expect(mergeSuggestions([a], [b, bDuplicate])).toEqual([b, a]);
@@ -82,12 +97,20 @@ describe("latestSuggestion", () => {
     const summary: AiSuggestion = {
       kind: "summary",
       createdAt: 1,
-      payload: { consensusNote: "x", discussionPoints: [] },
+      payload: {
+        consensusNote: "x",
+        discussionPoints: [],
+        suggestedScore: suggestedScore("3"),
+      },
     };
     const deep: AiSuggestion = {
       kind: "deep",
       createdAt: 2,
-      payload: { consensusNote: "y", discussionPoints: [] },
+      payload: {
+        consensusNote: "y",
+        discussionPoints: [],
+        suggestedScore: suggestedScore("5"),
+      },
     };
     expect(latestSuggestion([summary, deep], "deep")).toBe(deep);
     expect(latestSuggestion([summary, deep], "summary")).toBe(summary);

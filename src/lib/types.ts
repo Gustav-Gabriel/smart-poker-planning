@@ -39,6 +39,10 @@ export type AiSuggestion = {
   payload: {
     consensusNote: string;
     discussionPoints: string[];
+    suggestedScore: {
+      value: string;
+      rationale: string;
+    };
     risks?: string[];
     unplannedWork?: string[];
     relevantFiles?: { path: string; reason: string }[];

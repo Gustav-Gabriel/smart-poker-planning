@@ -1,8 +1,10 @@
-import type { AiSuggestion } from "../types";
+import { scoreCardsFor } from "../decks";
+import type { AiSuggestion, DeckType } from "../types";
 
 export function parseAiJson(
   text: string,
   kind: AiSuggestion["kind"],
+  deck: DeckType,
 ): AiSuggestion["payload"] {
   const start = text.indexOf("{");
   const end = text.lastIndexOf("}");
@@ -25,6 +27,23 @@ export function parseAiJson(
     !isStringArray(value.discussionPoints)
   ) {
     throw new Error("Invalid AI response: missing summary fields");
+  }
+
+  if (
+    !isRecord(value.suggestedScore) ||
+    typeof value.suggestedScore.value !== "string" ||
+    typeof value.suggestedScore.rationale !== "string"
+  ) {
+    throw new Error(
+      "Invalid AI response: suggestedScore must include value and rationale strings",
+    );
+  }
+
+  const allowed = scoreCardsFor(deck);
+  if (!allowed.includes(value.suggestedScore.value)) {
+    throw new Error(
+      `Invalid AI response: suggestedScore.value must be one of ${JSON.stringify(allowed)}`,
+    );
   }
 
   const optionalArrays = [

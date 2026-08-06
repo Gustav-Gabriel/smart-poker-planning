@@ -1634,6 +1634,43 @@ a:focus-visible {
   font-style: italic;
 }
 
+.suggestion-card__score {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed var(--color-border);
+}
+
+.suggestion-card__score h4 {
+  margin: 0;
+}
+
+.suggestion-card__score-value {
+  margin: 0;
+}
+
+.suggestion-card__score-card {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: var(--color-code-bg);
+  color: var(--color-text-heading);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.suggestion-card__score-rationale {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
 @media (max-width: 900px) {
   .room__layout {
     grid-template-columns: 1fr;

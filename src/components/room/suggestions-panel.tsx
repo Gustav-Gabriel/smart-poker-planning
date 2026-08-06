@@ -12,6 +12,22 @@ type SuggestionsPanelProps = {
   deepError: string;
 };
 
+function SuggestedScoreBlock({
+  suggestedScore,
+}: {
+  suggestedScore: AiSuggestion["payload"]["suggestedScore"];
+}) {
+  return (
+    <div className="suggestion-card__score" role="group" aria-label="Sugestão de pontuação">
+      <h4>Sugestão de pontuação</h4>
+      <p className="suggestion-card__score-value">
+        <span className="suggestion-card__score-card">{suggestedScore.value}</span>
+      </p>
+      <p className="suggestion-card__score-rationale">{suggestedScore.rationale}</p>
+    </div>
+  );
+}
+
 export function SuggestionsPanel({
   suggestions,
   revealed,
@@ -50,6 +66,7 @@ export function SuggestionsPanel({
         ) : null}
         {summary ? (
           <div className="suggestion-card">
+            <SuggestedScoreBlock suggestedScore={summary.payload.suggestedScore} />
             <p>{summary.payload.consensusNote}</p>
             {summary.payload.discussionPoints.length > 0 ? (
               <ul>
@@ -79,6 +96,7 @@ export function SuggestionsPanel({
         ) : null}
         {deep ? (
           <div className="suggestion-card">
+            <SuggestedScoreBlock suggestedScore={deep.payload.suggestedScore} />
             <p>{deep.payload.consensusNote}</p>
             {deep.payload.risks && deep.payload.risks.length > 0 ? (
               <div>
