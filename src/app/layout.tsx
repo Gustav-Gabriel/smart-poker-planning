@@ -14,6 +14,8 @@ const fraunces = Fraunces({
 
 export const metadata: Metadata = {
   title: "Smart Planning Poker",
+  description:
+    "Planning poker com IA e contexto do Jira e dos seus repositórios.",
 };
 
 export default function RootLayout({
