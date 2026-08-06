@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { GameRoom } from "@/components/room/game-room";
 import { JoinPanel, type JoinResult } from "@/components/join-panel";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { normalizeRoomCode } from "@/lib/room-ui";
 import { loadSession, type SessionData } from "@/lib/session-client";
 
@@ -59,9 +60,12 @@ export default function RoomPage() {
           <span className="wordmark__mark">S</span>
           <span>Smart Planning Poker</span>
         </Link>
-        <Link className="text-link" href="/">
-          Voltar ao início
-        </Link>
+        <div className="site-header__actions">
+          <Link className="text-link" href="/">
+            Voltar ao início
+          </Link>
+          <ThemeToggle />
+        </div>
       </header>
       <JoinPanel
         roomCode={code}

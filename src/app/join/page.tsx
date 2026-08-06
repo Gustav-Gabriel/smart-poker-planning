@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { InputField } from "@/components/ui/field";
 import { normalizeRoomCode } from "@/lib/room-ui";
@@ -29,9 +30,12 @@ export default function JoinPage() {
           <span className="wordmark__mark">S</span>
           <span>Smart Planning Poker</span>
         </Link>
-        <Link className="text-link" href="/">
-          Voltar ao início
-        </Link>
+        <div className="site-header__actions">
+          <Link className="text-link" href="/">
+            Voltar ao início
+          </Link>
+          <ThemeToggle />
+        </div>
       </header>
 
       <section className="join-layout">

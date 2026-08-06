@@ -6,6 +6,7 @@ import { Participants } from "@/components/room/participants";
 import { StoryPanel } from "@/components/room/story-panel";
 import { SuggestionsPanel } from "@/components/room/suggestions-panel";
 import { VoteDeck } from "@/components/room/vote-deck";
+import { ThemeToggle } from "@/components/theme-toggle";
 import type { MutationAck } from "@/lib/room-ui";
 import { mergeSuggestions, translateError } from "@/lib/room-ui";
 import { clearSession } from "@/lib/session-client";
@@ -213,6 +214,7 @@ export function GameRoom({
           <h1>Sala {room.code}</h1>
         </div>
         <div className="room__header-actions">
+          <ThemeToggle />
           <button type="button" className="text-link" onClick={handleCopyLink}>
             Copiar link
           </button>

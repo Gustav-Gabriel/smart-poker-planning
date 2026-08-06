@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CreateRoomForm } from "@/components/create-room-form";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function CreateRoomPage() {
   return (
@@ -9,9 +10,12 @@ export default function CreateRoomPage() {
           <span className="wordmark__mark">S</span>
           <span>Smart Planning Poker</span>
         </Link>
-        <Link className="text-link" href="/">
-          Voltar ao início
-        </Link>
+        <div className="site-header__actions">
+          <Link className="text-link" href="/">
+            Voltar ao início
+          </Link>
+          <ThemeToggle />
+        </div>
       </header>
 
       <div className="create-layout">

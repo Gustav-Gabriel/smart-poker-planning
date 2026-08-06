@@ -1,13 +1,101 @@
 :root {
   --color-bg: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-2: rgb(255 255 255 / 82%);
+  --color-surface-input: rgb(255 255 255 / 76%);
+  --color-surface-muted: rgb(255 255 255 / 70%);
+  --color-surface-glass: rgb(255 255 255 / 68%);
+  --color-surface-footer: rgb(255 255 255 / 48%);
+  --color-surface-halo: rgb(255 255 255 / 28%);
+  --color-text: #3f3f46;
+  --color-text-muted: #71717a;
+  --color-text-heading: #29252f;
+  --color-text-support: #5c5962;
+  --color-text-label: #48454d;
+  --color-text-placeholder: #a1a1aa;
+  --color-gray: var(--color-text);
+  --color-gray-muted: var(--color-text-muted);
+  --color-border: #e4e4e7;
+  --color-border-soft: rgb(228 228 231 / 75%);
+  --color-border-footer: rgb(228 228 231 / 72%);
   --color-purple: #6d28d9;
   --color-purple-dark: #4c1d95;
   --color-purple-soft: #ede9fe;
-  --color-gray: #3f3f46;
-  --color-gray-muted: #71717a;
-  --color-border: #e4e4e7;
+  --color-purple-hover-border: #c4b5fd;
+  --color-purple-glow: rgb(109 40 217 / 16%);
+  --color-purple-glow-soft: rgb(109 40 217 / 10%);
+  --color-purple-glow-room: rgb(109 40 217 / 12%);
+  --color-gray-glow: rgb(63 63 70 / 8%);
+  --color-page-gradient: linear-gradient(135deg, #fff 45%, #faf8ff 78%, #f4f4f5);
+  --color-page-gradient-create: linear-gradient(145deg, #fff 55%, #f8f6ff);
+  --color-dot: #6d28d9;
+  --color-dot-opacity: 0.3;
+  --color-card-solid: #ffffff;
+  --color-tag-muted-bg: #f1f1f3;
+  --color-suggestion-bg: rgb(109 40 217 / 5%);
+  --color-code-bg: rgb(63 63 70 / 8%);
+  --color-shadow: rgb(63 63 70 / 10%);
+  --color-shadow-soft: rgb(63 63 70 / 8%);
+  --color-shadow-card: rgb(63 63 70 / 20%);
+  --color-focus-ring: rgb(109 40 217 / 24%);
+  --color-focus-glow: rgb(109 40 217 / 9%);
+  --color-error-text: #991b1b;
+  --color-error-border: #fecaca;
+  --color-error-bg: #fef2f2;
+  --color-warning-text: #92400e;
+  --color-warning-border: #fde68a;
+  --color-warning-bg: #fffbeb;
   --font-sans: var(--font-outfit), sans-serif;
   --font-display: var(--font-fraunces), Georgia, serif;
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --color-bg: #18181b;
+  --color-surface: #1f1f23;
+  --color-surface-2: rgb(39 39 42 / 88%);
+  --color-surface-input: rgb(39 39 42 / 92%);
+  --color-surface-muted: rgb(39 39 42 / 78%);
+  --color-surface-glass: rgb(39 39 42 / 72%);
+  --color-surface-footer: rgb(24 24 27 / 72%);
+  --color-surface-halo: rgb(39 39 42 / 42%);
+  --color-text: #e4e4e7;
+  --color-text-muted: #a1a1aa;
+  --color-text-heading: #f4f4f5;
+  --color-text-support: #a1a1aa;
+  --color-text-label: #d4d4d8;
+  --color-text-placeholder: #71717a;
+  --color-border: #3f3f46;
+  --color-border-soft: rgb(63 63 70 / 80%);
+  --color-border-footer: rgb(63 63 70 / 75%);
+  --color-purple: #8b5cf6;
+  --color-purple-dark: #a78bfa;
+  --color-purple-soft: #2e1065;
+  --color-purple-hover-border: #7c3aed;
+  --color-purple-glow: rgb(139 92 246 / 18%);
+  --color-purple-glow-soft: rgb(139 92 246 / 12%);
+  --color-purple-glow-room: rgb(139 92 246 / 14%);
+  --color-gray-glow: rgb(161 161 170 / 8%);
+  --color-page-gradient: linear-gradient(135deg, #18181b 40%, #1c1628 78%, #1f1f23);
+  --color-page-gradient-create: linear-gradient(145deg, #18181b 50%, #1c1628);
+  --color-dot: #8b5cf6;
+  --color-dot-opacity: 0.22;
+  --color-card-solid: #27272a;
+  --color-tag-muted-bg: #27272a;
+  --color-suggestion-bg: rgb(139 92 246 / 12%);
+  --color-code-bg: rgb(255 255 255 / 8%);
+  --color-shadow: rgb(0 0 0 / 35%);
+  --color-shadow-soft: rgb(0 0 0 / 28%);
+  --color-shadow-card: rgb(0 0 0 / 45%);
+  --color-focus-ring: rgb(139 92 246 / 35%);
+  --color-focus-glow: rgb(139 92 246 / 18%);
+  --color-error-text: #fecaca;
+  --color-error-border: #7f1d1d;
+  --color-error-bg: #450a0a;
+  --color-warning-text: #fde68a;
+  --color-warning-border: #78350f;
+  --color-warning-bg: #451a03;
+  color-scheme: dark;
 }
 
 * {
@@ -21,7 +109,7 @@ html {
 
 body {
   margin: 0;
-  color: var(--color-gray);
+  color: var(--color-text);
   background: var(--color-bg);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -44,9 +132,9 @@ select {
   min-height: 100vh;
   overflow: hidden;
   background:
-    radial-gradient(circle at 80% 40%, rgb(109 40 217 / 16%), transparent 28rem),
-    radial-gradient(circle at 9% 92%, rgb(63 63 70 / 8%), transparent 24rem),
-    linear-gradient(135deg, #fff 45%, #faf8ff 78%, #f4f4f5);
+    radial-gradient(circle at 80% 40%, var(--color-purple-glow), transparent 28rem),
+    radial-gradient(circle at 9% 92%, var(--color-gray-glow), transparent 24rem),
+    var(--color-page-gradient);
 }
 
 .landing::before,
@@ -55,8 +143,8 @@ select {
   inset: 0;
   pointer-events: none;
   content: "";
-  opacity: 0.3;
-  background-image: radial-gradient(#6d28d9 0.65px, transparent 0.65px);
+  opacity: var(--color-dot-opacity);
+  background-image: radial-gradient(var(--color-dot) 0.65px, transparent 0.65px);
   background-size: 22px 22px;
   mask-image: linear-gradient(to bottom right, transparent 25%, #000);
 }
@@ -74,7 +162,21 @@ select {
 
 .site-header--compact {
   min-height: 80px;
-  border-bottom: 1px solid rgb(228 228 231 / 75%);
+  border-bottom: 1px solid var(--color-border-soft);
+}
+
+.site-header__actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.theme-toggle {
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
 }
 
 .wordmark {
@@ -146,7 +248,7 @@ select {
 .hero h1,
 .create-intro h1 {
   margin: 0;
-  color: #29252f;
+  color: var(--color-text-heading);
   font-family: var(--font-display);
   font-size: clamp(3.35rem, 6.2vw, 6.15rem);
   font-weight: 560;
@@ -162,7 +264,7 @@ select {
 .hero__support {
   max-width: 620px;
   margin: 30px 0 0;
-  color: #5c5962;
+  color: var(--color-text-support);
   font-size: clamp(1.05rem, 1.6vw, 1.25rem);
   line-height: 1.65;
 }
@@ -207,9 +309,9 @@ select {
 }
 
 .button--secondary {
-  color: var(--color-gray);
+  color: var(--color-text);
   border-color: var(--color-border);
-  background: rgb(255 255 255 / 68%);
+  background: var(--color-surface-glass);
   backdrop-filter: blur(8px);
 }
 
@@ -217,7 +319,7 @@ select {
 input:focus-visible,
 select:focus-visible,
 a:focus-visible {
-  outline: 3px solid rgb(109 40 217 / 24%);
+  outline: 3px solid var(--color-focus-ring);
   outline-offset: 3px;
 }
 
@@ -238,7 +340,7 @@ a:focus-visible {
   inset: 52px 12px 16px;
   border: 1px solid rgb(109 40 217 / 10%);
   border-radius: 50%;
-  background: rgb(255 255 255 / 28%);
+  background: var(--color-surface-halo);
   box-shadow:
     inset 0 0 70px rgb(109 40 217 / 8%),
     0 30px 80px rgb(76 29 149 / 10%);
@@ -253,7 +355,7 @@ a:focus-visible {
   height: 310px;
   padding: 24px;
   border-radius: 25px;
-  box-shadow: 0 30px 70px rgb(63 63 70 / 20%);
+  box-shadow: 0 30px 70px var(--color-shadow-card);
 }
 
 .poker-card--back {
@@ -262,7 +364,7 @@ a:focus-visible {
   color: rgb(255 255 255 / 85%);
   align-items: center;
   justify-content: center;
-  border: 8px solid white;
+  border: 8px solid var(--color-card-solid);
   background:
     repeating-linear-gradient(45deg, transparent 0 10px, rgb(255 255 255 / 8%) 10px 11px),
     var(--color-purple-dark);
@@ -278,7 +380,7 @@ a:focus-visible {
   align-items: center;
   justify-content: space-between;
   border: 1px solid rgb(109 40 217 / 14%);
-  background: rgb(255 255 255 / 88%);
+  background: var(--color-surface-2);
   backdrop-filter: blur(9px);
   transform: rotate(8deg);
 }
@@ -331,8 +433,8 @@ a:focus-visible {
   justify-content: center;
   min-height: 62px;
   color: var(--color-gray-muted);
-  border-top: 1px solid rgb(228 228 231 / 72%);
-  background: rgb(255 255 255 / 48%);
+  border-top: 1px solid var(--color-border-footer);
+  background: var(--color-surface-footer);
   font-size: 0.76rem;
   letter-spacing: 0.05em;
   backdrop-filter: blur(8px);
@@ -348,8 +450,8 @@ a:focus-visible {
 .create-page {
   overflow: visible;
   background:
-    radial-gradient(circle at 9% 25%, rgb(109 40 217 / 10%), transparent 28rem),
-    linear-gradient(145deg, #fff 55%, #f8f6ff);
+    radial-gradient(circle at 9% 25%, var(--color-purple-glow-soft), transparent 28rem),
+    var(--color-page-gradient-create);
 }
 
 .create-layout {
@@ -427,7 +529,7 @@ a:focus-visible {
 
 .form-section__heading h2 {
   margin: 0;
-  color: #29252f;
+  color: var(--color-text-heading);
   font-family: var(--font-display);
   font-size: 1.65rem;
   font-weight: 570;
@@ -458,7 +560,7 @@ a:focus-visible {
 }
 
 .field label {
-  color: #48454d;
+  color: var(--color-text-label);
   font-size: 0.84rem;
   font-weight: 650;
 }
@@ -468,29 +570,29 @@ a:focus-visible {
   width: 100%;
   height: 48px;
   padding: 0 14px;
-  color: var(--color-gray);
+  color: var(--color-text);
   border: 1px solid var(--color-border);
   border-radius: 10px;
   outline: none;
-  background: rgb(255 255 255 / 76%);
+  background: var(--color-surface-input);
   transition:
     border-color 160ms ease,
     box-shadow 160ms ease;
 }
 
 .field input::placeholder {
-  color: #a1a1aa;
+  color: var(--color-text-placeholder);
 }
 
 .field input:hover,
 .field select:hover {
-  border-color: #c4b5fd;
+  border-color: var(--color-purple-hover-border);
 }
 
 .field input:focus,
 .field select:focus {
   border-color: var(--color-purple);
-  box-shadow: 0 0 0 3px rgb(109 40 217 / 9%);
+  box-shadow: 0 0 0 3px var(--color-focus-glow);
 }
 
 .field__hint {
@@ -502,19 +604,19 @@ a:focus-visible {
 
 .form-error {
   padding: 12px 15px;
-  color: #991b1b;
-  border: 1px solid #fecaca;
+  color: var(--color-error-text);
+  border: 1px solid var(--color-error-border);
   border-radius: 10px;
-  background: #fef2f2;
+  background: var(--color-error-bg);
   font-size: 0.86rem;
 }
 
 .form-warning {
   padding: 12px 15px;
-  color: #92400e;
-  border: 1px solid #fde68a;
+  color: var(--color-warning-text);
+  border: 1px solid var(--color-warning-border);
   border-radius: 10px;
-  background: #fffbeb;
+  background: var(--color-warning-bg);
   font-size: 0.86rem;
 }
 
@@ -643,14 +745,14 @@ a:focus-visible {
   padding: 44px;
   border: 1px solid var(--color-border);
   border-radius: 22px;
-  background: rgb(255 255 255 / 82%);
-  box-shadow: 0 30px 70px rgb(63 63 70 / 10%);
+  background: var(--color-surface-2);
+  box-shadow: 0 30px 70px var(--color-shadow);
   backdrop-filter: blur(6px);
 }
 
 .join-card h1 {
   margin: 10px 0 0;
-  color: #29252f;
+  color: var(--color-text-heading);
   font-family: var(--font-display);
   font-size: clamp(2rem, 4vw, 2.6rem);
   font-weight: 570;
@@ -681,8 +783,8 @@ a:focus-visible {
   position: relative;
   min-height: 100vh;
   background:
-    radial-gradient(circle at 85% 10%, rgb(109 40 217 / 12%), transparent 26rem),
-    linear-gradient(145deg, #fff 55%, #f8f6ff);
+    radial-gradient(circle at 85% 10%, var(--color-purple-glow-room), transparent 26rem),
+    var(--color-page-gradient-create);
 }
 
 .room-page--join .join-panel {
@@ -693,7 +795,7 @@ a:focus-visible {
 
 .join-panel h1 {
   margin: 10px 0 0;
-  color: #29252f;
+  color: var(--color-text-heading);
   font-family: var(--font-display);
   font-size: clamp(1.9rem, 3.6vw, 2.4rem);
   font-weight: 570;
@@ -708,8 +810,8 @@ a:focus-visible {
   padding: 36px;
   border: 1px solid var(--color-border);
   border-radius: 22px;
-  background: rgb(255 255 255 / 82%);
-  box-shadow: 0 30px 70px rgb(63 63 70 / 10%);
+  background: var(--color-surface-2);
+  box-shadow: 0 30px 70px var(--color-shadow);
 }
 
 .join-form__support {
@@ -721,7 +823,7 @@ a:focus-visible {
 
 .field-label {
   margin: 0;
-  color: #48454d;
+  color: var(--color-text-label);
   font-size: 0.84rem;
   font-weight: 650;
 }
@@ -742,8 +844,8 @@ a:focus-visible {
   padding: 32px;
   border: 1px solid var(--color-border);
   border-radius: 22px;
-  background: rgb(255 255 255 / 82%);
-  box-shadow: 0 30px 70px rgb(63 63 70 / 10%);
+  background: var(--color-surface-2);
+  box-shadow: 0 30px 70px var(--color-shadow);
 }
 
 .rejoin-banner__avatar {
@@ -842,7 +944,7 @@ a:focus-visible {
   aspect-ratio: 1;
   border: 1px solid var(--color-border);
   border-radius: 12px;
-  background: white;
+  background: var(--color-card-solid);
   font-size: 1.3rem;
   cursor: pointer;
   place-items: center;
@@ -850,7 +952,7 @@ a:focus-visible {
 }
 
 .avatar-picker__option:hover {
-  border-color: #c4b5fd;
+  border-color: var(--color-purple-hover-border);
   transform: translateY(-1px);
 }
 
@@ -877,12 +979,13 @@ a:focus-visible {
   border: 1px solid var(--color-border);
   border-radius: 10px;
   outline: none;
-  background: rgb(255 255 255 / 76%);
+  background: var(--color-surface-input);
+  color: var(--color-text);
 }
 
 .avatar-picker__search input:focus {
   border-color: var(--color-purple);
-  box-shadow: 0 0 0 3px rgb(109 40 217 / 9%);
+  box-shadow: 0 0 0 3px var(--color-focus-glow);
 }
 
 .avatar-picker__search button {
@@ -946,7 +1049,7 @@ a:focus-visible {
 
 .room__header h1 {
   margin: 6px 0 0;
-  color: #29252f;
+  color: var(--color-text-heading);
   font-family: var(--font-display);
   font-size: clamp(1.9rem, 3.4vw, 2.4rem);
   font-weight: 570;
@@ -989,8 +1092,8 @@ a:focus-visible {
   padding: 26px 28px;
   border: 1px solid var(--color-border);
   border-radius: 20px;
-  background: rgb(255 255 255 / 82%);
-  box-shadow: 0 20px 50px rgb(63 63 70 / 8%);
+  background: var(--color-surface-2);
+  box-shadow: 0 20px 50px var(--color-shadow-soft);
 }
 
 .panel__heading {
@@ -1004,7 +1107,7 @@ a:focus-visible {
 
 .panel__heading h2 {
   margin: 0;
-  color: #29252f;
+  color: var(--color-text-heading);
   font-family: var(--font-display);
   font-size: 1.28rem;
   font-weight: 570;
@@ -1029,14 +1132,14 @@ a:focus-visible {
 }
 
 .tag--muted {
-  background: #f1f1f3;
+  background: var(--color-tag-muted-bg);
   color: var(--color-gray-muted);
 }
 
 .tag--outline {
   border: 1px solid var(--color-border);
   background: transparent;
-  color: var(--color-gray);
+  color: var(--color-text);
 }
 
 .tag--host {
@@ -1071,13 +1174,13 @@ a:focus-visible {
 
 .story-card h3 {
   margin: 0;
-  color: #29252f;
+  color: var(--color-text-heading);
   font-size: 1.2rem;
 }
 
 .story-card__description {
   margin: 0;
-  color: var(--color-gray);
+  color: var(--color-text);
   font-size: 0.92rem;
   line-height: 1.6;
   white-space: pre-line;
@@ -1103,12 +1206,13 @@ a:focus-visible {
   border: 1px solid var(--color-border);
   border-radius: 10px;
   outline: none;
-  background: rgb(255 255 255 / 76%);
+  background: var(--color-surface-input);
+  color: var(--color-text);
 }
 
 .story-panel__import input:focus {
   border-color: var(--color-purple);
-  box-shadow: 0 0 0 3px rgb(109 40 217 / 9%);
+  box-shadow: 0 0 0 3px var(--color-focus-glow);
 }
 
 /* Host controls */
@@ -1128,7 +1232,7 @@ a:focus-visible {
 
 .host-controls__repos h3 {
   margin: 0 0 10px;
-  color: #29252f;
+  color: var(--color-text-heading);
   font-size: 1rem;
 }
 
@@ -1148,7 +1252,7 @@ a:focus-visible {
   padding: 10px 14px;
   border: 1px solid var(--color-border);
   border-radius: 12px;
-  background: rgb(255 255 255 / 70%);
+  background: var(--color-surface-muted);
 }
 
 .repo-list__item div {
@@ -1176,12 +1280,13 @@ a:focus-visible {
   border: 1px solid var(--color-border);
   border-radius: 10px;
   outline: none;
-  background: rgb(255 255 255 / 76%);
+  background: var(--color-surface-input);
+  color: var(--color-text);
 }
 
 .host-controls__repo-form input:focus {
   border-color: var(--color-purple);
-  box-shadow: 0 0 0 3px rgb(109 40 217 / 9%);
+  box-shadow: 0 0 0 3px var(--color-focus-glow);
 }
 
 .repo-picker {
@@ -1198,7 +1303,8 @@ a:focus-visible {
   border: 1px solid var(--color-border);
   border-radius: 10px;
   outline: none;
-  background: rgb(255 255 255 / 76%);
+  background: var(--color-surface-input);
+  color: var(--color-text);
 }
 
 .repo-picker__list {
@@ -1254,7 +1360,7 @@ a:focus-visible {
   height: 90px;
   border: 2px solid var(--color-border);
   border-radius: 14px;
-  background: white;
+  background: var(--color-card-solid);
   color: var(--color-purple-dark);
   font-family: var(--font-display);
   font-size: 1.5rem;
@@ -1268,7 +1374,7 @@ a:focus-visible {
 }
 
 .vote-card:hover:not(:disabled) {
-  border-color: #c4b5fd;
+  border-color: var(--color-purple-hover-border);
   transform: translateY(-4px);
 }
 
@@ -1366,7 +1472,7 @@ a:focus-visible {
   align-items: center;
   min-width: 0;
   overflow: hidden;
-  color: var(--color-gray);
+  color: var(--color-text);
   font-size: 0.88rem;
   font-weight: 600;
   text-overflow: ellipsis;
@@ -1413,7 +1519,7 @@ a:focus-visible {
 
 .suggestion-block h3 {
   margin: 0 0 10px;
-  color: #29252f;
+  color: var(--color-text-heading);
   font-size: 1rem;
 }
 
@@ -1423,12 +1529,12 @@ a:focus-visible {
   gap: 12px;
   padding: 16px 18px;
   border-radius: 14px;
-  background: rgb(109 40 217 / 5%);
+  background: var(--color-suggestion-bg);
 }
 
 .suggestion-card > p {
   margin: 0;
-  color: var(--color-gray);
+  color: var(--color-text);
   font-size: 0.92rem;
   line-height: 1.6;
 }
@@ -1444,7 +1550,7 @@ a:focus-visible {
 .suggestion-card ul {
   padding-left: 20px;
   margin: 0;
-  color: var(--color-gray);
+  color: var(--color-text);
   font-size: 0.88rem;
   line-height: 1.6;
 }
@@ -1452,7 +1558,7 @@ a:focus-visible {
 .suggestion-card code {
   padding: 1px 6px;
   border-radius: 6px;
-  background: rgb(63 63 70 / 8%);
+  background: var(--color-code-bg);
   font-size: 0.82rem;
 }
 

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { buttonClassName } from "@/components/ui/button";
 
 export default function Home() {
@@ -9,7 +10,10 @@ export default function Home() {
           <span className="wordmark__mark">S</span>
           <span>Smart Planning Poker</span>
         </Link>
-        <span className="site-header__note">Feito para times que conversam</span>
+        <div className="site-header__actions">
+          <span className="site-header__note">Feito para times que conversam</span>
+          <ThemeToggle />
+        </div>
       </header>
 
       <section className="hero">
