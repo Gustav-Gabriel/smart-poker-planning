@@ -7,11 +7,64 @@ import { StoryPanel } from "@/components/room/story-panel";
 import { SuggestionsPanel } from "@/components/room/suggestions-panel";
 import { VoteDeck } from "@/components/room/vote-deck";
 import { ThemeToggle } from "@/components/theme-toggle";
+import {
+  getSelectedContents,
+  localRepoKey,
+} from "@/lib/local-repo/host-content-store";
 import type { MutationAck } from "@/lib/room-ui";
 import { mergeSuggestions, translateError } from "@/lib/room-ui";
 import { clearSession } from "@/lib/session-client";
 import { getSocket } from "@/lib/socket/client";
-import type { AiSuggestion, ClientRoomSnapshot, Player } from "@/lib/types";
+import type {
+  AiSuggestion,
+  ClientRoomSnapshot,
+  Player,
+  RepoAttachment,
+} from "@/lib/types";
+
+/** Build localFiles payload for deep analysis from host in-memory store. */
+export function buildLocalFilesPayload(
+  repos: RepoAttachment[],
+):
+  | { ok: true; localFiles: { repository: string; files: { path: string; content: string }[] }[] }
+  | { ok: false; error: string } {
+  const localRepos = repos.filter((repo) => repo.provider === "local");
+  const localFiles: {
+    repository: string;
+    files: { path: string; content: string }[];
+  }[] = [];
+
+  for (const repo of localRepos) {
+    const stored = getSelectedContents(localRepoKey(repo.repo));
+    if (!stored) {
+      return {
+        ok: false,
+        error:
+          "Código local ausente neste navegador. Anexe o zip ou a pasta de novo antes da análise profunda.",
+      };
+    }
+    const files: { path: string; content: string }[] = [];
+    for (const path of repo.selectedPaths) {
+      const content = stored.get(path);
+      if (content !== undefined) {
+        files.push({ path, content });
+      }
+    }
+    if (files.length === 0 && repo.selectedPaths.length > 0) {
+      return {
+        ok: false,
+        error:
+          "Código local ausente neste navegador. Anexe o zip ou a pasta de novo antes da análise profunda.",
+      };
+    }
+    localFiles.push({
+      repository: `${repo.owner}/${repo.repo}`,
+      files,
+    });
+  }
+
+  return { ok: true, localFiles };
+}
 
 type AiEventPayload = AiSuggestion | { status: "pending" } | { error: string };
 
@@ -167,11 +220,25 @@ export function GameRoom({
     if (!hostToken) return;
     setDeepPending(true);
     setDeepError("");
+
+    const localPayload = buildLocalFilesPayload(room.repos);
+    if (!localPayload.ok) {
+      setDeepPending(false);
+      setDeepError(localPayload.error);
+      return;
+    }
+
     try {
       const response = await fetch("/api/ai/deep", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ roomCode: code, hostToken }),
+        body: JSON.stringify({
+          roomCode: code,
+          hostToken,
+          ...(localPayload.localFiles.length > 0
+            ? { localFiles: localPayload.localFiles }
+            : {}),
+        }),
       });
       if (!response.ok) {
         const data = (await response.json().catch(() => ({}))) as {

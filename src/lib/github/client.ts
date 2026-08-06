@@ -1,8 +1,11 @@
+import {
+  MAX_FILE_BYTES,
+  MAX_FILES,
+  MAX_TOTAL_BYTES,
+} from "@/lib/repo-caps";
 import { parseGithubUrl } from "./parse-url";
 
-export const MAX_FILES = 40;
-export const MAX_FILE_BYTES = 40_960;
-export const MAX_TOTAL_BYTES = 204_800;
+export { MAX_FILE_BYTES, MAX_FILES, MAX_TOTAL_BYTES };
 const REQUEST_TIMEOUT_MS = 20_000;
 
 export class GithubAuthError extends Error {
