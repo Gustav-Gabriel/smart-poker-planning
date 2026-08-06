@@ -174,7 +174,7 @@ const ERROR_TRANSLATIONS: Array<[RegExp, string]> = [
   ],
   [
     /zip archive is too large/i,
-    "O arquivo zip é grande demais (máx. 50MB).",
+    "O arquivo zip é grande demais (máx. 200MB).",
   ],
   [
     /invalid or corrupt zip archive/i,

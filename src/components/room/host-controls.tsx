@@ -9,7 +9,11 @@ import {
   setSelectedContents,
 } from "@/lib/local-repo/host-content-store";
 import { readFolder } from "@/lib/local-repo/read-folder";
-import { readZip } from "@/lib/local-repo/read-zip";
+import {
+  extractZipFiles,
+  listZipPaths,
+  type ZipHandle,
+} from "@/lib/local-repo/read-zip";
 import type { MutationAck } from "@/lib/room-ui";
 import { translateError } from "@/lib/room-ui";
 import { getSocket } from "@/lib/socket/client";
@@ -57,6 +61,7 @@ export function HostControls({
     string,
     string
   > | null>(null);
+  const [pendingZip, setPendingZip] = useState<ZipHandle | null>(null);
   const [selectedPaths, setSelectedPaths] = useState<string[]>([]);
   const [pathFilter, setPathFilter] = useState("");
   const [repoError, setRepoError] = useState("");
@@ -74,6 +79,7 @@ export function HostControls({
   function resetPicker() {
     setTree(null);
     setPendingContents(null);
+    setPendingZip(null);
     setSelectedPaths([]);
     setPathFilter("");
   }
@@ -116,6 +122,7 @@ export function HostControls({
         url: trimmedUrl,
       });
       setPendingContents(null);
+      setPendingZip(null);
       setSelectedPaths([]);
     } catch {
       setRepoError("Falha de rede ao carregar o repositório.");
@@ -134,20 +141,21 @@ export function HostControls({
     resetPicker();
     try {
       const buffer = await file.arrayBuffer();
-      const result = readZip(buffer, file.name);
-      if (result.paths.length === 0) {
+      const handle = listZipPaths(buffer, file.name);
+      if (handle.paths.length === 0) {
         setRepoError("Nenhum arquivo de texto encontrado no zip.");
         return;
       }
       setTree({
         owner: "local",
-        repo: result.repoName,
+        repo: handle.repoName,
         ref: "local",
-        paths: result.paths,
+        paths: handle.paths,
         provider: "local",
-        url: `local://${result.repoName}`,
+        url: `local://${handle.repoName}`,
       });
-      setPendingContents(result.files);
+      setPendingZip(handle);
+      setPendingContents(null);
       setSelectedPaths([]);
     } catch (error) {
       setRepoError(
@@ -183,6 +191,7 @@ export function HostControls({
         url: `local://${result.repoName}`,
       });
       setPendingContents(result.files);
+      setPendingZip(null);
       setSelectedPaths([]);
     } catch {
       setRepoError("Falha ao ler a pasta selecionada.");
@@ -203,19 +212,23 @@ export function HostControls({
     setSaving(true);
 
     if (tree.provider === "local") {
-      if (!pendingContents) {
+      let selectedMap: Map<string, string>;
+      if (pendingZip) {
+        selectedMap = extractZipFiles(pendingZip, selectedPaths);
+      } else if (pendingContents) {
+        selectedMap = new Map<string, string>();
+        for (const path of selectedPaths) {
+          const content = pendingContents.get(path);
+          if (content !== undefined) {
+            selectedMap.set(path, content);
+          }
+        }
+      } else {
         setSaving(false);
         setRepoError(
           "Conteúdo local ausente. Selecione o zip ou a pasta novamente.",
         );
         return;
-      }
-      const selectedMap = new Map<string, string>();
-      for (const path of selectedPaths) {
-        const content = pendingContents.get(path);
-        if (content !== undefined) {
-          selectedMap.set(path, content);
-        }
       }
       // Soft client-side cap check (server enforces again).
       applyCaps(selectedMap, selectedPaths);
@@ -370,6 +383,9 @@ export function HostControls({
             <p className="host-controls__local-warning">
               Código local fica só neste navegador; após atualizar a página, anexe de
               novo para análise profunda.
+            </p>
+            <p className="host-controls__local-hint">
+              Prefira um zip sem node_modules/.git (até 200MB).
             </p>
             <div className="host-controls__local-actions">
               <Button
