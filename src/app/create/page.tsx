@@ -22,16 +22,16 @@ export default function CreateRoomPage() {
         <aside className="create-intro">
           <p className="eyebrow">Nova sessão</p>
           <h1>Prepare o contexto. O time cuida da conversa.</h1>
-          <p>
-            Configure as integrações uma vez e comece uma rodada de estimativas
-            com tudo que importa à mão.
-          </p>
-          <div className="privacy-note">
-            <span aria-hidden="true">✦</span>
             <p>
-              Chaves e tokens nunca aparecem para os participantes da sala.
+              Integrações de IA e Jira usam as chaves do servidor. Você só
+              configura o essencial para começar a rodada.
             </p>
-          </div>
+            <div className="privacy-note">
+              <span aria-hidden="true">✦</span>
+              <p>
+                Tokens opcionais nunca aparecem para os participantes da sala.
+              </p>
+            </div>
         </aside>
 
         <CreateRoomForm />

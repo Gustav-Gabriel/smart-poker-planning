@@ -8,12 +8,14 @@ import {
   validatePlayerUpdate,
 } from "./validation";
 
-const validSecrets = {
-  aiProvider: "openai",
-  aiApiKey: "sk-test",
-  jiraSite: "https://acme.atlassian.net",
-  jiraEmail: "ana@acme.com",
-  jiraToken: "jira-token",
+const validPublic = {
+  name: "Sprint 12",
+  deck: "fibonacci" as const,
+  hostName: "Ana",
+  hostAvatar: { type: "emoji" as const, value: "🎯" },
+  secrets: {
+    aiProvider: "gemini" as const,
+  },
 };
 
 describe("clampString", () => {
@@ -64,57 +66,57 @@ describe("isValidVoteValue", () => {
 });
 
 describe("validateCreateRoomInput", () => {
-  it("accepts a well-formed payload", () => {
-    const result = validateCreateRoomInput({
+  it("accepts a well-formed public payload", () => {
+    const result = validateCreateRoomInput(validPublic);
+    expect(result).toEqual({
       name: "Sprint 12",
       deck: "fibonacci",
       hostName: "Ana",
       hostAvatar: { type: "emoji", value: "🎯" },
-      secrets: validSecrets,
+      aiProvider: "gemini",
     });
-    expect("error" in result).toBe(false);
+  });
+
+  it("ignores client-sent AI and Jira secrets", () => {
+    const result = validateCreateRoomInput({
+      ...validPublic,
+      secrets: {
+        aiProvider: "openai",
+        aiApiKey: "client-should-be-ignored",
+        jiraSite: "https://evil.example",
+        jiraEmail: "x@y.com",
+        jiraToken: "tok",
+      },
+    });
+    expect(result).toEqual({
+      name: "Sprint 12",
+      deck: "fibonacci",
+      hostName: "Ana",
+      hostAvatar: { type: "emoji", value: "🎯" },
+      aiProvider: "openai",
+    });
   });
 
   it("rejects an oversized name", () => {
     const result = validateCreateRoomInput({
+      ...validPublic,
       name: "a".repeat(81),
-      deck: "fibonacci",
-      hostName: "Ana",
-      hostAvatar: { type: "emoji", value: "🎯" },
-      secrets: validSecrets,
     });
     expect(result).toEqual({ error: "Room name is required" });
-  });
-
-  it("rejects an oversized secret", () => {
-    const result = validateCreateRoomInput({
-      name: "Sprint 12",
-      deck: "fibonacci",
-      hostName: "Ana",
-      hostAvatar: { type: "emoji", value: "🎯" },
-      secrets: { ...validSecrets, aiApiKey: "a".repeat(513) },
-    });
-    expect(result).toEqual({ error: "AI API key is required" });
   });
 
   it("rejects an invalid deck or avatar", () => {
     expect(
       validateCreateRoomInput({
-        name: "Sprint 12",
+        ...validPublic,
         deck: "poker",
-        hostName: "Ana",
-        hostAvatar: { type: "emoji", value: "🎯" },
-        secrets: validSecrets,
       }),
     ).toEqual({ error: "Invalid deck" });
 
     expect(
       validateCreateRoomInput({
-        name: "Sprint 12",
-        deck: "fibonacci",
-        hostName: "Ana",
+        ...validPublic,
         hostAvatar: { type: "gif", value: "https://evil.com/x.gif" },
-        secrets: validSecrets,
       }),
     ).toEqual({ error: "Invalid host avatar" });
   });
@@ -122,41 +124,35 @@ describe("validateCreateRoomInput", () => {
   it("rejects a missing hostName", () => {
     expect(
       validateCreateRoomInput({
-        name: "Sprint 12",
-        deck: "fibonacci",
+        ...validPublic,
         hostName: "   ",
-        hostAvatar: { type: "emoji", value: "🎯" },
-        secrets: validSecrets,
       }),
     ).toEqual({ error: "Host name is required" });
   });
 
   it("includes optional git token when set", () => {
     const result = validateCreateRoomInput({
+      ...validPublic,
+      secrets: {
+        aiProvider: "gemini",
+        gitToken: "  gh-pat  ",
+      },
+    });
+    expect(result).toEqual({
       name: "Sprint 12",
       deck: "fibonacci",
       hostName: "Ana",
       hostAvatar: { type: "emoji", value: "🎯" },
-      secrets: {
-        ...validSecrets,
-        gitToken: "  gh-pat  ",
-      },
-    });
-    expect(result).toMatchObject({
-      secrets: {
-        gitToken: "gh-pat",
-      },
+      aiProvider: "gemini",
+      gitToken: "gh-pat",
     });
   });
 
   it("rejects blank optional git token", () => {
     expect(
       validateCreateRoomInput({
-        name: "Sprint 12",
-        deck: "fibonacci",
-        hostName: "Ana",
-        hostAvatar: { type: "emoji", value: "🎯" },
-        secrets: { ...validSecrets, gitToken: "   " },
+        ...validPublic,
+        secrets: { aiProvider: "gemini", gitToken: "   " },
       }),
     ).toEqual({ error: "Invalid Git token" });
   });

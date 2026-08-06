@@ -2,16 +2,12 @@ import { describe, expect, it } from "vitest";
 import { buildRoomPayload } from "./create-room-form";
 
 describe("buildRoomPayload", () => {
-  it("maps create-room fields to the socket payload", () => {
+  it("maps create-room fields to the socket payload without secrets", () => {
     expect(
       buildRoomPayload({
         roomName: "  Sprint 24  ",
         deck: "fibonacci",
         aiProvider: "gemini",
-        aiApiKey: "ai-key",
-        jiraSite: "https://acme.atlassian.net/",
-        jiraEmail: "ana@acme.com",
-        jiraToken: "jira-key",
         gitToken: "  ",
         hostName: "  Ana  ",
         hostEmoji: "🚀",
@@ -23,10 +19,6 @@ describe("buildRoomPayload", () => {
       hostAvatar: { type: "emoji", value: "🚀" },
       secrets: {
         aiProvider: "gemini",
-        aiApiKey: "ai-key",
-        jiraSite: "https://acme.atlassian.net",
-        jiraEmail: "ana@acme.com",
-        jiraToken: "jira-key",
       },
     });
   });
@@ -36,21 +28,13 @@ describe("buildRoomPayload", () => {
       buildRoomPayload({
         roomName: "Sprint 24",
         deck: "fibonacci",
-        aiProvider: "openai",
-        aiApiKey: "ai-key",
-        jiraSite: "https://acme.atlassian.net",
-        jiraEmail: "ana@acme.com",
-        jiraToken: "jira-key",
+        aiProvider: "gemini",
         gitToken: " gh-pat ",
         hostName: "Ana",
         hostEmoji: "🃏",
       }).secrets,
     ).toEqual({
-      aiProvider: "openai",
-      aiApiKey: "ai-key",
-      jiraSite: "https://acme.atlassian.net",
-      jiraEmail: "ana@acme.com",
-      jiraToken: "jira-key",
+      aiProvider: "gemini",
       gitToken: "gh-pat",
     });
   });

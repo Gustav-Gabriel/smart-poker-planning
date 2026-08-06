@@ -115,7 +115,15 @@ const ERROR_TRANSLATIONS: Array<[RegExp, string]> = [
   [/invalid host avatar/i, "Avatar do anfitrião inválido."],
   [/invalid room secrets/i, "Credenciais da sala inválidas."],
   [/invalid ai provider/i, "Provedor de IA inválido."],
+  [
+    /ai api key is not configured/i,
+    "Chave da API de IA não configurada no servidor. Defina a variável do provedor no ambiente (ex.: GEMINI_API_KEY).",
+  ],
   [/ai api key is required/i, "Informe a chave da API de IA."],
+  [
+    /jira credentials are not configured/i,
+    "Credenciais do Jira incompletas no servidor. Defina JIRA_SITE, JIRA_EMAIL e JIRA_TOKEN.",
+  ],
   [/jira site is required/i, "Informe o site do Jira."],
   [/jira email is required/i, "Informe o e-mail do Jira."],
   [/jira token is required/i, "Informe o token do Jira."],

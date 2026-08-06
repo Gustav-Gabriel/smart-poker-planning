@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { translateError } from "@/lib/room-ui";
 import { saveSession } from "@/lib/session-client";
 import { getSocket } from "@/lib/socket/client";
 import type { AiProvider, DeckType, Player } from "@/lib/types";
@@ -12,10 +13,6 @@ export type CreateRoomFields = {
   roomName: string;
   deck: DeckType;
   aiProvider: AiProvider;
-  aiApiKey: string;
-  jiraSite: string;
-  jiraEmail: string;
-  jiraToken: string;
   gitToken: string;
   hostName: string;
   hostEmoji: string;
@@ -30,10 +27,6 @@ export function buildRoomPayload(fields: CreateRoomFields) {
     hostAvatar: { type: "emoji" as const, value: fields.hostEmoji },
     secrets: {
       aiProvider: fields.aiProvider,
-      aiApiKey: fields.aiApiKey.trim(),
-      jiraSite: fields.jiraSite.trim().replace(/\/+$/, ""),
-      jiraEmail: fields.jiraEmail.trim(),
-      jiraToken: fields.jiraToken.trim(),
       ...(gitToken ? { gitToken } : {}),
     },
   };
@@ -63,10 +56,6 @@ export function CreateRoomForm() {
       roomName: String(form.get("roomName") ?? ""),
       deck: String(form.get("deck")) as DeckType,
       aiProvider: String(form.get("aiProvider")) as AiProvider,
-      aiApiKey: String(form.get("aiApiKey") ?? ""),
-      jiraSite: String(form.get("jiraSite") ?? ""),
-      jiraEmail: String(form.get("jiraEmail") ?? ""),
-      jiraToken: String(form.get("jiraToken") ?? ""),
       gitToken: String(form.get("gitToken") ?? ""),
       hostName: String(form.get("hostName") ?? ""),
       hostEmoji: String(form.get("hostEmoji") ?? "🃏"),
@@ -84,7 +73,10 @@ export function CreateRoomForm() {
             return;
           }
           if (!response || "ok" in response) {
-            setError(response?.error ?? "Não foi possível criar a sala.");
+            setError(
+              translateError(response?.error) ||
+                "Não foi possível criar a sala.",
+            );
             setSubmitting(false);
             return;
           }
@@ -133,7 +125,10 @@ export function CreateRoomForm() {
           <span>02</span>
           <div>
             <h2>Copiloto de IA</h2>
-            <p>Use seu próprio provedor para enriquecer a discussão.</p>
+            <p>
+              O servidor usa a chave configurada no ambiente para o provedor
+              escolhido.
+            </p>
           </div>
         </div>
         <div className="field-grid">
@@ -141,21 +136,14 @@ export function CreateRoomForm() {
             id="aiProvider"
             name="aiProvider"
             label="Provedor"
-            defaultValue="openai"
+            defaultValue="gemini"
           >
-            <option value="openai">OpenAI</option>
             <option value="gemini">Google Gemini</option>
+            {/* Temporarily hidden — keys remain wired via OPENAI_API_KEY / ANTHROPIC_API_KEY
+            <option value="openai">OpenAI</option>
             <option value="claude">Anthropic Claude</option>
+            */}
           </SelectField>
-          <InputField
-            id="aiApiKey"
-            name="aiApiKey"
-            label="Chave da API"
-            type="password"
-            placeholder="Cole sua chave"
-            autoComplete="off"
-            required
-          />
         </div>
       </section>
 
@@ -164,36 +152,13 @@ export function CreateRoomForm() {
           <span>03</span>
           <div>
             <h2>Contexto do trabalho</h2>
-            <p>Conecte Jira e GitHub para estimativas mais informadas.</p>
+            <p>
+              Jira já vem das variáveis de ambiente do servidor. Token do GitHub
+              é opcional para repositórios privados.
+            </p>
           </div>
         </div>
         <div className="field-grid">
-          <InputField
-            id="jiraSite"
-            name="jiraSite"
-            label="Site do Jira"
-            type="url"
-            placeholder="https://suaempresa.atlassian.net"
-            required
-          />
-          <InputField
-            id="jiraEmail"
-            name="jiraEmail"
-            label="E-mail do Jira"
-            type="email"
-            placeholder="voce@empresa.com"
-            autoComplete="email"
-            required
-          />
-          <InputField
-            id="jiraToken"
-            name="jiraToken"
-            label="Token do Jira"
-            type="password"
-            placeholder="Token de acesso"
-            autoComplete="off"
-            required
-          />
           <InputField
             id="gitToken"
             name="gitToken"
@@ -245,7 +210,10 @@ export function CreateRoomForm() {
       ) : null}
 
       <div className="form-actions">
-        <p>Suas credenciais ficam protegidas no servidor durante a sessão.</p>
+        <p>
+          IA e Jira usam as chaves do servidor; tokens opcionais ficam só na
+          memória da sessão.
+        </p>
         <Button type="submit" disabled={submitting}>
           {submitting ? "Criando sala…" : "Criar sala"}
           <span aria-hidden="true">→</span>

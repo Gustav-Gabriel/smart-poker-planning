@@ -1,6 +1,5 @@
 import { cardsFor } from "./decks";
 import type { AiProvider, DeckType, Player } from "./types";
-import type { CreateRoomInput } from "./room-store";
 
 export const MAX_NAME_LENGTH = 80;
 export const MAX_SECRET_LENGTH = 512;
@@ -57,9 +56,23 @@ export function isValidVoteValue(deck: DeckType, value: unknown): value is strin
   return typeof value === "string" && cardsFor(deck).includes(value);
 }
 
+/** Public create-room fields; AI/Jira secrets are filled from env on the server. */
+export type ValidatedCreateRoomPublic = {
+  name: string;
+  deck: DeckType;
+  hostName: string;
+  hostAvatar: Player["avatar"];
+  aiProvider: AiProvider;
+  gitToken?: string;
+};
+
+/**
+ * Validates client create-room payload: name, deck, host, AI provider, optional git token.
+ * Ignores any client-sent aiApiKey / jira* fields (secrets come from env).
+ */
 export function validateCreateRoomInput(
   input: unknown,
-): CreateRoomInput | { error: string } {
+): ValidatedCreateRoomPublic | { error: string } {
   if (!input || typeof input !== "object") {
     return { error: "Invalid room payload" };
   }
@@ -87,18 +100,6 @@ export function validateCreateRoomInput(
     return { error: "Invalid AI provider" };
   }
 
-  const aiApiKey = clampString(secrets.aiApiKey, MAX_SECRET_LENGTH);
-  if (!aiApiKey) return { error: "AI API key is required" };
-
-  const jiraSite = clampString(secrets.jiraSite, MAX_SECRET_LENGTH);
-  if (!jiraSite) return { error: "Jira site is required" };
-
-  const jiraEmail = clampString(secrets.jiraEmail, MAX_SECRET_LENGTH);
-  if (!jiraEmail) return { error: "Jira email is required" };
-
-  const jiraToken = clampString(secrets.jiraToken, MAX_SECRET_LENGTH);
-  if (!jiraToken) return { error: "Jira token is required" };
-
   let gitToken: string | undefined;
   if (secrets.gitToken !== undefined) {
     const clamped = clampString(secrets.gitToken, MAX_SECRET_LENGTH);
@@ -111,14 +112,8 @@ export function validateCreateRoomInput(
     deck: value.deck as DeckType,
     hostName,
     hostAvatar: value.hostAvatar as Player["avatar"],
-    secrets: {
-      aiProvider: secrets.aiProvider as AiProvider,
-      aiApiKey,
-      jiraSite,
-      jiraEmail,
-      jiraToken,
-      ...(gitToken ? { gitToken } : {}),
-    },
+    aiProvider: secrets.aiProvider as AiProvider,
+    ...(gitToken ? { gitToken } : {}),
   };
 }
 

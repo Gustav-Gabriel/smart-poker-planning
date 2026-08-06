@@ -171,6 +171,12 @@ describe("translateError", () => {
     expect(translateError("GitHub request timed out")).toBe(
       "O GitHub demorou demais para responder. Tente novamente.",
     );
+    expect(translateError("AI API key is not configured")).toBe(
+      "Chave da API de IA não configurada no servidor. Defina a variável do provedor no ambiente (ex.: GEMINI_API_KEY).",
+    );
+    expect(translateError("Jira credentials are not configured")).toBe(
+      "Credenciais do Jira incompletas no servidor. Defina JIRA_SITE, JIRA_EMAIL e JIRA_TOKEN.",
+    );
   });
 
   it("never exposes hostToken in user-facing text", () => {

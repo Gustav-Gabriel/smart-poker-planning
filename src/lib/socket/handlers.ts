@@ -14,6 +14,7 @@ import {
   setStory,
   touchRoom,
 } from "../room-store";
+import { aiApiKeyForProvider, jiraSecretsFromEnv } from "../env-secrets";
 import type { Player, RepoAttachment, Story } from "../types";
 import {
   isValidVoteValue,
@@ -145,7 +146,32 @@ export function registerSocketHandlers(io: Server): void {
           return;
         }
 
-        const created = createRoom(validated);
+        const aiApiKey = aiApiKeyForProvider(validated.aiProvider);
+        if (!aiApiKey) {
+          ack({ ok: false, error: "AI API key is not configured" });
+          return;
+        }
+
+        const jira = jiraSecretsFromEnv();
+        if ("error" in jira) {
+          ack({ ok: false, error: jira.error });
+          return;
+        }
+
+        const created = createRoom({
+          name: validated.name,
+          deck: validated.deck,
+          hostName: validated.hostName,
+          hostAvatar: validated.hostAvatar,
+          secrets: {
+            aiProvider: validated.aiProvider,
+            aiApiKey,
+            jiraSite: jira.jiraSite,
+            jiraEmail: jira.jiraEmail,
+            jiraToken: jira.jiraToken,
+            ...(validated.gitToken ? { gitToken: validated.gitToken } : {}),
+          },
+        });
         await socket.join(created.room.code);
         socket.data.roomCode = created.room.code;
         socket.data.playerId = created.player.id;

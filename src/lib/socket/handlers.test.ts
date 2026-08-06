@@ -1,6 +1,6 @@
 import { createServer, type Server as HttpServer } from "node:http";
 import type { AddressInfo } from "node:net";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Server } from "socket.io";
 import { io as createClient, type Socket as ClientSocket } from "socket.io-client";
 import { assertHost } from "../host-auth";
@@ -13,11 +13,20 @@ let httpServer: HttpServer | undefined;
 let io: Server | undefined;
 let clients: ClientSocket[] = [];
 
+function stubCreateEnv() {
+  vi.stubEnv("OPENAI_API_KEY", "sk-test");
+  vi.stubEnv("JIRA_SITE", "https://acme.atlassian.net");
+  vi.stubEnv("JIRA_EMAIL", "ana@acme.com");
+  vi.stubEnv("JIRA_TOKEN", "jira-token");
+}
+
 beforeEach(() => {
   _resetStoreForTests();
+  stubCreateEnv();
 });
 
 afterEach(async () => {
+  vi.unstubAllEnvs();
   for (const client of clients) client.disconnect();
   clients = [];
   await io?.close();
@@ -77,7 +86,8 @@ function emitAck(
   return new Promise((resolve) => socket.emit(event, payload, resolve));
 }
 
-const roomInput = {
+/** Full secrets for direct createRoom() in unit tests. */
+const roomStoreInput = {
   name: "Sprint 12",
   deck: "fibonacci" as const,
   hostName: "Ana",
@@ -91,9 +101,20 @@ const roomInput = {
   },
 };
 
+/** Public create payload — secrets come from env on the server. */
+const roomCreatePayload = {
+  name: "Sprint 12",
+  deck: "fibonacci" as const,
+  hostName: "Ana",
+  hostAvatar: { type: "emoji" as const, value: "🎯" },
+  secrets: {
+    aiProvider: "openai" as const,
+  },
+};
+
 describe("assertHost", () => {
   it("authenticates only the room host token", () => {
-    const created = createRoom(roomInput);
+    const created = createRoom(roomStoreInput);
 
     expect(assertHost(created.room.code, created.hostToken)).toBe(true);
     expect(assertHost(created.room.code, "wrong-token")).toBe(false);
@@ -104,7 +125,7 @@ describe("assertHost", () => {
 describe("registerSocketHandlers", () => {
   it("creates, joins, and broadcasts hidden votes per viewer", async () => {
     const host = await startHarness();
-    const created = await emitAck(host, "room:create", roomInput);
+    const created = await emitAck(host, "room:create", roomCreatePayload);
     const room = created.room as { code: string };
     const hostPlayer = created.player as { id: string };
 
@@ -144,7 +165,7 @@ describe("registerSocketHandlers", () => {
 
   it("authorizes host actions and emits pending AI state after reveal", async () => {
     const host = await startHarness();
-    const created = await emitAck(host, "room:create", roomInput);
+    const created = await emitAck(host, "room:create", roomCreatePayload);
     const room = created.room as { code: string };
     const hostToken = created.hostToken as string;
 
@@ -165,7 +186,7 @@ describe("registerSocketHandlers", () => {
 
   it("updates players and tracks leave and disconnect presence", async () => {
     const host = await startHarness();
-    const created = await emitAck(host, "room:create", roomInput);
+    const created = await emitAck(host, "room:create", roomCreatePayload);
     const room = created.room as { code: string };
 
     const guest = await addClient();
@@ -213,5 +234,40 @@ describe("registerSocketHandlers", () => {
 
     expect(await emitAck(rejoined, "room:leave", {})).toEqual({ ok: true });
     expect(getRoom(room.code)?.players.has(guestPlayer.id)).toBe(false);
+  });
+
+  it("rejects create when AI or Jira env secrets are missing", async () => {
+    vi.unstubAllEnvs();
+    const host = await startHarness();
+    expect(await emitAck(host, "room:create", roomCreatePayload)).toEqual({
+      ok: false,
+      error: "AI API key is not configured",
+    });
+
+    vi.stubEnv("OPENAI_API_KEY", "sk-test");
+    expect(await emitAck(host, "room:create", roomCreatePayload)).toEqual({
+      ok: false,
+      error: "Jira credentials are not configured",
+    });
+  });
+
+  it("ignores client-supplied AI and Jira secrets on create", async () => {
+    const host = await startHarness();
+    const created = await emitAck(host, "room:create", {
+      ...roomCreatePayload,
+      secrets: {
+        aiProvider: "openai",
+        aiApiKey: "client-key",
+        jiraSite: "https://evil.example",
+        jiraEmail: "evil@example.com",
+        jiraToken: "evil-token",
+      },
+    });
+    expect(created).toHaveProperty("room");
+    const room = getRoom((created.room as { code: string }).code);
+    expect(room?.secrets.aiApiKey).toBe("sk-test");
+    expect(room?.secrets.jiraSite).toBe("https://acme.atlassian.net");
+    expect(room?.secrets.jiraEmail).toBe("ana@acme.com");
+    expect(room?.secrets.jiraToken).toBe("jira-token");
   });
 });
