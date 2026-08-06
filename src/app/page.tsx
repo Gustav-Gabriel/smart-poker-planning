@@ -58,6 +58,8 @@ export default function Home() {
         <i />
         <span>IA a favor da conversa</span>
       </footer>
+
+      <p className="landing__credit">By GG</p>
     </main>
   );
 }
