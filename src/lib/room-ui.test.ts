@@ -127,8 +127,8 @@ describe("translateError", () => {
     expect(translateError("Failed to fetch GitHub tree")).toBe(
       "Não foi possível listar os arquivos do repositório no GitHub.",
     );
-    expect(translateError("Failed to fetch Bitbucket tree")).toBe(
-      "Não foi possível listar os arquivos do repositório no Bitbucket.",
+    expect(translateError("Local repository contents are missing")).toBe(
+      "Código local ausente neste navegador. Anexe o zip ou a pasta de novo antes da análise profunda.",
     );
     expect(translateError("roomCode and hostToken are required")).toBe(
       "Dados obrigatórios ausentes.",
@@ -147,19 +147,6 @@ describe("translateError", () => {
     );
     expect(translateError("GitHub request timed out")).toBe(
       "O GitHub demorou demais para responder. Tente novamente.",
-    );
-    expect(translateError("Bitbucket request timed out")).toBe(
-      "O Bitbucket demorou demais para responder. Tente novamente.",
-    );
-    expect(translateError("Bitbucket repository not found")).toBe(
-      "Repositório do Bitbucket não encontrado — ou privado sem autenticação válida (App Password + usuário, ou Access Token).",
-    );
-    expect(
-      translateError(
-        "Bitbucket repository not found. If private, use App Password with username, or an Access Token.",
-      ),
-    ).toBe(
-      "Repositório do Bitbucket não encontrado — ou privado sem autenticação válida (App Password + usuário, ou Access Token).",
     );
   });
 

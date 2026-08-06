@@ -133,10 +133,6 @@ const ERROR_TRANSLATIONS: Array<[RegExp, string]> = [
     "O GitHub demorou demais para responder. Tente novamente.",
   ],
   [
-    /bitbucket request timed out/i,
-    "O Bitbucket demorou demais para responder. Tente novamente.",
-  ],
-  [
     /klipy request timed out/i,
     "O KLIPY demorou demais para responder. Tente novamente.",
   ],
@@ -173,29 +169,16 @@ const ERROR_TRANSLATIONS: Array<[RegExp, string]> = [
     "Formato de arquivo do GitHub não suportado.",
   ],
   [
-    /bitbucket authentication failed/i,
-    "Falha na autenticação do Bitbucket. Verifique o Access Token ou App Password + usuário.",
+    /local repository contents are missing/i,
+    "Código local ausente neste navegador. Anexe o zip ou a pasta de novo antes da análise profunda.",
   ],
   [
-    /bitbucket repository not found/i,
-    "Repositório do Bitbucket não encontrado — ou privado sem autenticação válida (App Password + usuário, ou Access Token).",
+    /zip archive is too large/i,
+    "O arquivo zip é grande demais (máx. 50MB).",
   ],
   [
-    /invalid bitbucket repository url/i,
-    "Link de repositório do Bitbucket inválido.",
-  ],
-  [
-    /failed to fetch bitbucket tree/i,
-    "Não foi possível listar os arquivos do repositório no Bitbucket.",
-  ],
-  [
-    /failed to fetch bitbucket contents/i,
-    "Não foi possível buscar os arquivos selecionados no Bitbucket.",
-  ],
-  [/bitbucket request failed/i, "Falha ao comunicar com o Bitbucket."],
-  [
-    /bitbucket repository has no main branch/i,
-    "O repositório do Bitbucket não tem branch principal.",
+    /invalid or corrupt zip archive/i,
+    "Arquivo zip inválido ou corrompido.",
   ],
   [
     /roomcode, hosttoken, url, ref, and paths are required/i,
@@ -207,7 +190,7 @@ const ERROR_TRANSLATIONS: Array<[RegExp, string]> = [
   ],
   [
     /roomcode, hosttoken, and url are required/i,
-    "Informe o link do repositório no GitHub ou Bitbucket.",
+    "Informe o link do repositório no GitHub.",
   ],
   [/roomcode and hosttoken are required/i, "Dados obrigatórios ausentes."],
   [/roomcode, hosttoken/i, "Dados obrigatórios ausentes."],

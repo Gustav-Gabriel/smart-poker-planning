@@ -13,7 +13,6 @@ describe("buildRoomPayload", () => {
         jiraEmail: "ana@acme.com",
         jiraToken: "jira-key",
         gitToken: "  ",
-        bitbucketUsername: "  ",
         hostName: "  Ana  ",
         hostEmoji: "🚀",
       }),
@@ -32,7 +31,7 @@ describe("buildRoomPayload", () => {
     });
   });
 
-  it("includes optional Bitbucket username and git token when set", () => {
+  it("includes optional git token when set", () => {
     expect(
       buildRoomPayload({
         roomName: "Sprint 24",
@@ -42,8 +41,7 @@ describe("buildRoomPayload", () => {
         jiraSite: "https://acme.atlassian.net",
         jiraEmail: "ana@acme.com",
         jiraToken: "jira-key",
-        gitToken: " app-password ",
-        bitbucketUsername: " ana ",
+        gitToken: " gh-pat ",
         hostName: "Ana",
         hostEmoji: "🃏",
       }).secrets,
@@ -53,8 +51,7 @@ describe("buildRoomPayload", () => {
       jiraSite: "https://acme.atlassian.net",
       jiraEmail: "ana@acme.com",
       jiraToken: "jira-key",
-      gitToken: "app-password",
-      bitbucketUsername: "ana",
+      gitToken: "gh-pat",
     });
   });
 });
