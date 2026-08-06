@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, type KeyboardEvent } from "react";
 import type { KlipyGif } from "@/lib/klipy/client";
+import { translateError } from "@/lib/room-ui";
 import type { Player } from "@/lib/types";
 
 const EMOJI_OPTIONS = [
@@ -37,8 +38,7 @@ export function AvatarPicker({ value, onChange }: AvatarPickerProps) {
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState("");
 
-  async function handleSearch(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function runSearch() {
     const trimmed = query.trim();
     if (!trimmed) return;
 
@@ -53,16 +53,22 @@ export function AvatarPicker({ value, onChange }: AvatarPickerProps) {
         error?: string;
       };
       if (!response.ok) {
-        setError(data.error ?? "Falha ao buscar GIFs.");
+        setError(translateError(data.error ?? "Falha ao buscar GIFs."));
         setResults([]);
         return;
       }
       setResults(data.results ?? []);
     } catch {
-      setError("Falha ao buscar GIFs.");
+      setError(translateError("Falha ao buscar GIFs."));
     } finally {
       setSearching(false);
     }
+  }
+
+  function handleSearchKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key !== "Enter") return;
+    event.preventDefault();
+    void runSearch();
   }
 
   return (
@@ -117,18 +123,19 @@ export function AvatarPicker({ value, onChange }: AvatarPickerProps) {
         </div>
       ) : (
         <div className="avatar-picker__gif">
-          <form className="avatar-picker__search" onSubmit={handleSearch}>
+          <div className="avatar-picker__search">
             <input
               type="text"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
+              onKeyDown={handleSearchKeyDown}
               placeholder="Buscar GIF (ex.: comemorar)"
               aria-label="Buscar GIF"
             />
-            <button type="submit" disabled={searching}>
+            <button type="button" disabled={searching} onClick={() => void runSearch()}>
               {searching ? "Buscando…" : "Buscar"}
             </button>
-          </form>
+          </div>
           {error ? (
             <p className="form-error" role="alert">
               {error}
