@@ -13,7 +13,9 @@ export class BitbucketAuthError extends Error {
 }
 
 export class BitbucketNotFoundError extends Error {
-  constructor(message = "Bitbucket repository not found") {
+  constructor(
+    message = "Bitbucket repository not found. If private, use App Password with username, or an Access Token.",
+  ) {
     super(message);
     this.name = "BitbucketNotFoundError";
   }
@@ -21,14 +23,17 @@ export class BitbucketNotFoundError extends Error {
 
 type BitbucketFetchInit = {
   token?: string;
+  username?: string;
 };
 
-function bitbucketHeaders(token?: string): HeadersInit {
+function bitbucketHeaders(token?: string, username?: string): HeadersInit {
   const headers: Record<string, string> = {
     Accept: "application/json",
   };
 
-  if (token) {
+  if (username && token) {
+    headers.Authorization = `Basic ${Buffer.from(`${username}:${token}`).toString("base64")}`;
+  } else if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
 
@@ -42,7 +47,7 @@ async function bitbucketFetch(
   let response: Response;
   try {
     response = await fetch(url, {
-      headers: bitbucketHeaders(init.token),
+      headers: bitbucketHeaders(init.token, init.username),
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
   } catch (error) {
@@ -85,13 +90,18 @@ export async function listRepoTree(input: {
   workspace: string;
   repo: string;
   token?: string;
+  username?: string;
+  ref?: string;
 }): Promise<{ ref: string; paths: string[] }> {
-  const repoUrl = `https://api.bitbucket.org/2.0/repositories/${encodeURIComponent(input.workspace)}/${encodeURIComponent(input.repo)}`;
-  const repoResponse = await bitbucketFetch(repoUrl, input);
-  const repoData = (await repoResponse.json()) as RepoResponse;
-  const ref = repoData.mainbranch?.name;
+  let ref = input.ref;
   if (!ref) {
-    throw new Error("Bitbucket repository has no main branch");
+    const repoUrl = `https://api.bitbucket.org/2.0/repositories/${encodeURIComponent(input.workspace)}/${encodeURIComponent(input.repo)}`;
+    const repoResponse = await bitbucketFetch(repoUrl, input);
+    const repoData = (await repoResponse.json()) as RepoResponse;
+    ref = repoData.mainbranch?.name;
+    if (!ref) {
+      throw new Error("Bitbucket repository has no main branch");
+    }
   }
 
   const paths: string[] = [];
@@ -125,6 +135,7 @@ export async function fetchSelectedContents(input: {
   ref: string;
   paths: string[];
   token?: string;
+  username?: string;
 }): Promise<{ files: { path: string; content: string }[]; omitted: string[] }> {
   const files: { path: string; content: string }[] = [];
   const omitted: string[] = [];
@@ -172,12 +183,15 @@ export async function fetchSelectedContents(input: {
 export async function listRepoTreeFromUrl(input: {
   url: string;
   token?: string;
+  username?: string;
 }): Promise<{ owner: string; repo: string; ref: string; paths: string[] }> {
-  const { workspace, repo } = parseBitbucketUrl(input.url);
+  const { workspace, repo, ref } = parseBitbucketUrl(input.url);
   const tree = await listRepoTree({
     workspace,
     repo,
     token: input.token,
+    username: input.username,
+    ref,
   });
   return { owner: workspace, repo, ...tree };
 }
@@ -187,6 +201,7 @@ export async function fetchSelectedContentsFromUrl(input: {
   ref: string;
   paths: string[];
   token?: string;
+  username?: string;
 }): Promise<{ files: { path: string; content: string }[]; omitted: string[] }> {
   const { workspace, repo } = parseBitbucketUrl(input.url);
   return fetchSelectedContents({
@@ -195,5 +210,6 @@ export async function fetchSelectedContentsFromUrl(input: {
     ref: input.ref,
     paths: input.paths,
     token: input.token,
+    username: input.username,
   });
 }

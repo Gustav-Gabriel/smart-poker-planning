@@ -1,9 +1,10 @@
 const BITBUCKET_URL_PATTERN =
-  /(?:https?:\/\/)?(?:www\.)?bitbucket\.org\/([^/?#]+)\/([^/?#]+)/i;
+  /(?:https?:\/\/)?(?:www\.)?bitbucket\.org\/([^/?#]+)\/([^/?#]+)(?:\/src\/([^/?#]+))?/i;
 
 export function parseBitbucketUrl(url: string): {
   workspace: string;
   repo: string;
+  ref?: string;
 } {
   const match = url.match(BITBUCKET_URL_PATTERN);
   if (!match) {
@@ -15,5 +16,14 @@ export function parseBitbucketUrl(url: string): {
     repo = repo.slice(0, -4);
   }
 
-  return { workspace: match[1], repo };
+  const result: { workspace: string; repo: string; ref?: string } = {
+    workspace: match[1],
+    repo,
+  };
+
+  if (match[3]) {
+    result.ref = decodeURIComponent(match[3]);
+  }
+
+  return result;
 }

@@ -24,6 +24,30 @@ it("preserves dotted repository names", () => {
   );
 });
 
+it("extracts branch ref from /src/{branch}/ browse urls", () => {
+  expect(
+    parseBitbucketUrl(
+      "https://bitbucket.org/useniu/marilena-backend/src/development/",
+    ),
+  ).toEqual({
+    workspace: "useniu",
+    repo: "marilena-backend",
+    ref: "development",
+  });
+});
+
+it("extracts ref when path continues after the branch", () => {
+  expect(
+    parseBitbucketUrl(
+      "https://bitbucket.org/acme/api/src/feature%2Ffoo/src/main.ts",
+    ),
+  ).toEqual({
+    workspace: "acme",
+    repo: "api",
+    ref: "feature/foo",
+  });
+});
+
 it("rejects workspace-only urls", () => {
   expect(() => parseBitbucketUrl("https://bitbucket.org/useniu")).toThrow(
     "Invalid Bitbucket repository URL",

@@ -68,7 +68,7 @@ describe("listRepoTree", () => {
     });
   });
 
-  it("sends Bearer token when provided", async () => {
+  it("sends Bearer token when provided without username", async () => {
     const fetchMock = vi.fn(async () =>
       jsonResponse({ mainbranch: { name: "main" } }),
     );
@@ -89,6 +89,55 @@ describe("listRepoTree", () => {
     const init = firstCall[1] as RequestInit;
     const headers = new Headers(init.headers);
     expect(headers.get("Authorization")).toBe("Bearer bb-token");
+  });
+
+  it("sends Basic auth when username and token are provided", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(jsonResponse({ mainbranch: { name: "main" } }))
+      .mockResolvedValueOnce(jsonResponse({ values: [] }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await listRepoTree({
+      workspace: "acme",
+      repo: "api",
+      token: "app-password",
+      username: "ana",
+    });
+
+    const firstCall = fetchMock.mock.calls[0];
+    const init = firstCall[1] as RequestInit;
+    const headers = new Headers(init.headers);
+    expect(headers.get("Authorization")).toBe(
+      `Basic ${Buffer.from("ana:app-password").toString("base64")}`,
+    );
+  });
+
+  it("uses explicit ref without fetching mainbranch", async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (
+        url ===
+        "https://api.bitbucket.org/2.0/repositories/acme/api/src/development/?max_depth=20&pagelen=100"
+      ) {
+        return jsonResponse({
+          values: [{ type: "commit_file", path: "app.py" }],
+        });
+      }
+      throw new Error(`Unexpected URL: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      listRepoTree({
+        workspace: "acme",
+        repo: "api",
+        ref: "development",
+      }),
+    ).resolves.toEqual({
+      ref: "development",
+      paths: ["app.py"],
+    });
   });
 
   it("maps 401 to BitbucketAuthError", async () => {
@@ -142,6 +191,41 @@ describe("listRepoTreeFromUrl", () => {
       ref: "develop",
       paths: ["app.py"],
     });
+  });
+
+  it("passes parsed branch ref and Basic auth from URL helpers", async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (
+        url ===
+        "https://api.bitbucket.org/2.0/repositories/useniu/marilena-backend/src/development/?max_depth=20&pagelen=100"
+      ) {
+        return jsonResponse({
+          values: [{ type: "commit_file", path: "README.md" }],
+        });
+      }
+      throw new Error(`Unexpected URL: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      listRepoTreeFromUrl({
+        url: "https://bitbucket.org/useniu/marilena-backend/src/development/",
+        token: "app-password",
+        username: "ana",
+      }),
+    ).resolves.toEqual({
+      owner: "useniu",
+      repo: "marilena-backend",
+      ref: "development",
+      paths: ["README.md"],
+    });
+
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    const headers = new Headers(init.headers);
+    expect(headers.get("Authorization")).toBe(
+      `Basic ${Buffer.from("ana:app-password").toString("base64")}`,
+    );
   });
 });
 
