@@ -1,6 +1,7 @@
 import { createServer } from "node:http";
 import next from "next";
 import { Server } from "socket.io";
+import { purgeExpired } from "./src/lib/room-store";
 import { registerSocketHandlers } from "./src/lib/socket/handlers";
 import { setIO } from "./src/lib/socket/io";
 
@@ -18,6 +19,10 @@ app
     const io = new Server(httpServer, { path: "/api/socket" });
     setIO(io);
     registerSocketHandlers(io);
+
+    setInterval(() => {
+      purgeExpired(Date.now());
+    }, 10 * 60 * 1000);
 
     httpServer.listen(port, () => {
       console.log(`> Ready on http://localhost:${port}`);
