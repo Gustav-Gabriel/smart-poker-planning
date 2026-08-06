@@ -172,11 +172,25 @@ select {
 }
 
 .theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
   padding: 0;
   border: none;
+  border-radius: 8px;
   background: transparent;
+  color: inherit;
   cursor: pointer;
   font: inherit;
+}
+
+.theme-toggle__icon {
+  display: block;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
 }
 
 .wordmark {
