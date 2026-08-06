@@ -1,5 +1,6 @@
 import type { Server, Socket } from "socket.io";
 import { runSummary } from "../ai/providers";
+import { checkRoomRateLimit, RATE_LIMIT_MESSAGE } from "../rate-limit";
 import { toClientSnapshot } from "../room-snapshot";
 import {
   castVote,
@@ -12,9 +13,14 @@ import {
   setRepos,
   setStory,
   touchRoom,
-  type CreateRoomInput,
 } from "../room-store";
 import type { Player, RepoAttachment, Story } from "../types";
+import {
+  isValidVoteValue,
+  validateCreateRoomInput,
+  validateJoinNameAvatar,
+  validatePlayerUpdate,
+} from "../validation";
 
 type SuccessAck = { ok: true };
 type ErrorAck = { ok: false; error: string };
@@ -24,6 +30,7 @@ type Ack<T> = (result: T | ErrorAck) => void;
 type JoinPayload = {
   roomCode: string;
   playerId?: string;
+  playerToken?: string;
   name?: string;
   avatar?: Player["avatar"];
 };
@@ -80,6 +87,11 @@ function generateSummary(io: Server, roomCode: string): void {
   const room = getRoom(roomCode);
   if (!room) return;
 
+  if (!checkRoomRateLimit(room.code)) {
+    io.to(room.code).emit("ai:summary", { error: RATE_LIMIT_MESSAGE });
+    return;
+  }
+
   const votes = [...room.players.values()]
     .filter((player) => player.vote !== null)
     .map((player) => ({ player: player.name, vote: player.vote }));
@@ -119,14 +131,21 @@ export function registerSocketHandlers(io: Server): void {
     socket.on(
       "room:create",
       async (
-        input: CreateRoomInput,
+        input: unknown,
         ack: Ack<{
           room: ReturnType<typeof toClientSnapshot>;
           player: Player;
           hostToken: string;
+          playerToken: string;
         }> = () => undefined,
       ) => {
-        const created = createRoom(input);
+        const validated = validateCreateRoomInput(input);
+        if ("error" in validated) {
+          ack({ ok: false, error: validated.error });
+          return;
+        }
+
+        const created = createRoom(validated);
         await socket.join(created.room.code);
         socket.data.roomCode = created.room.code;
         socket.data.playerId = created.player.id;
@@ -134,6 +153,7 @@ export function registerSocketHandlers(io: Server): void {
           room: toClientSnapshot(created.room, created.player.id),
           player: created.player,
           hostToken: created.hostToken,
+          playerToken: created.playerToken,
         });
       },
     );
@@ -145,28 +165,51 @@ export function registerSocketHandlers(io: Server): void {
         ack: Ack<{
           room: ReturnType<typeof toClientSnapshot>;
           player: Player;
+          playerToken: string;
         }> = () => undefined,
       ) => {
+        if (!input || typeof input.roomCode !== "string") {
+          ack({ ok: false, error: "Room code is required" });
+          return;
+        }
+
         const roomCode = input.roomCode.toUpperCase();
         let result:
-          | { room: NonNullable<ReturnType<typeof getRoom>>; player: Player }
+          | {
+              room: NonNullable<ReturnType<typeof getRoom>>;
+              player: Player;
+              playerToken: string;
+            }
           | ErrorAck;
+
         if (input.playerId) {
-          const rejoined = rejoinRoom(roomCode, input.playerId);
+          const rejoined = rejoinRoom(
+            roomCode,
+            input.playerId,
+            input.playerToken ?? "",
+          );
           result = rejoined.ok
-            ? { room: rejoined.room, player: rejoined.player }
+            ? {
+                room: rejoined.room,
+                player: rejoined.player,
+                playerToken: input.playerToken ?? "",
+              }
             : { ok: false, error: rejoined.error };
-        } else if (input.name && input.avatar) {
-          const joined = joinRoom(roomCode, {
-            name: input.name,
-            avatar: input.avatar,
-          });
-          result =
-            "error" in joined
-              ? { ok: false, error: joined.error }
-              : { room: joined.room, player: joined.player };
         } else {
-          result = { ok: false, error: "Name and avatar are required" };
+          const validated = validateJoinNameAvatar(input.name, input.avatar);
+          if ("error" in validated) {
+            result = { ok: false, error: validated.error };
+          } else {
+            const joined = joinRoom(roomCode, validated);
+            result =
+              "error" in joined
+                ? { ok: false, error: joined.error }
+                : {
+                    room: joined.room,
+                    player: joined.player,
+                    playerToken: joined.playerToken,
+                  };
+          }
         }
 
         if ("ok" in result) {
@@ -181,6 +224,7 @@ export function registerSocketHandlers(io: Server): void {
         ack({
           room: toClientSnapshot(result.room, result.player.id),
           player: result.player,
+          playerToken: result.playerToken,
         });
       },
     );
@@ -196,6 +240,17 @@ export function registerSocketHandlers(io: Server): void {
           ack(identity);
           return;
         }
+
+        const room = getRoom(identity.roomCode);
+        if (!room) {
+          ack({ ok: false, error: "Room not found" });
+          return;
+        }
+        if (!isValidVoteValue(room.deck, input.value)) {
+          ack({ ok: false, error: "Invalid vote value" });
+          return;
+        }
+
         await finishMutation(
           io,
           identity.roomCode,
@@ -311,8 +366,15 @@ export function registerSocketHandlers(io: Server): void {
           ack({ ok: false, error: "Player not found" });
           return;
         }
-        if (input.name !== undefined) player.name = input.name;
-        if (input.avatar !== undefined) player.avatar = input.avatar;
+
+        const validated = validatePlayerUpdate(input.name, input.avatar);
+        if ("error" in validated) {
+          ack({ ok: false, error: validated.error });
+          return;
+        }
+
+        if (validated.name !== undefined) player.name = validated.name;
+        if (validated.avatar !== undefined) player.avatar = validated.avatar;
         touchRoom(room.code);
         await broadcastRoom(io, room.code);
         ack({ ok: true });
@@ -335,6 +397,7 @@ export function registerSocketHandlers(io: Server): void {
           ack({ ok: false, error: "Player not found" });
           return;
         }
+        room.playerTokens.delete(identity.playerId);
         touchRoom(room.code);
         await socket.leave(room.code);
         socket.data.roomCode = undefined;

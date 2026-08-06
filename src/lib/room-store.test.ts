@@ -73,7 +73,31 @@ describe("room-store", () => {
     expect(getRoom(created.room.code)!.players.get(created.player.id)!.vote).toBeNull();
   });
 
-  it("rejoins by playerId", () => {
+  it("rejects casting a vote after votes are revealed", () => {
+    const created = createRoom({
+      name: "R",
+      deck: "fibonacci",
+      hostName: "Host",
+      hostAvatar: { type: "emoji", value: "👑" },
+      secrets: {
+        aiProvider: "openai",
+        aiApiKey: "k",
+        jiraSite: "https://x.atlassian.net",
+        jiraEmail: "h@x.com",
+        jiraToken: "t",
+      },
+    });
+    castVote(created.room.code, created.player.id, "5");
+    revealVotes(created.room.code, created.hostToken);
+
+    const result = castVote(created.room.code, created.player.id, "8");
+    expect(result).toEqual({ ok: false, error: "Votes already revealed" });
+    expect(getRoom(created.room.code)!.players.get(created.player.id)!.vote).toBe(
+      "5",
+    );
+  });
+
+  it("rejoins by playerId and playerToken", () => {
     const created = createRoom({
       name: "R",
       deck: "tshirt",
@@ -87,9 +111,35 @@ describe("room-store", () => {
         jiraToken: "t",
       },
     });
-    const again = rejoinRoom(created.room.code, created.player.id);
+    const again = rejoinRoom(
+      created.room.code,
+      created.player.id,
+      created.playerToken,
+    );
     expect(again.ok).toBe(true);
     if (!again.ok) throw new Error(again.error);
     expect(again.player.isHost).toBe(true);
+  });
+
+  it("rejects rejoin with a missing or wrong playerToken", () => {
+    const created = createRoom({
+      name: "R",
+      deck: "tshirt",
+      hostName: "Host",
+      hostAvatar: { type: "emoji", value: "👑" },
+      secrets: {
+        aiProvider: "claude",
+        aiApiKey: "k",
+        jiraSite: "https://x.atlassian.net",
+        jiraEmail: "h@x.com",
+        jiraToken: "t",
+      },
+    });
+
+    const wrongToken = rejoinRoom(created.room.code, created.player.id, "nope");
+    expect(wrongToken).toEqual({ ok: false, error: "Invalid rejoin token" });
+
+    const missingToken = rejoinRoom(created.room.code, created.player.id, "");
+    expect(missingToken).toEqual({ ok: false, error: "Invalid rejoin token" });
   });
 });

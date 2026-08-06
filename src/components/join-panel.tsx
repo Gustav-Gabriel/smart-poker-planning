@@ -13,10 +13,13 @@ import type { ClientRoomSnapshot, Player } from "@/lib/types";
 export type JoinResult = {
   room: ClientRoomSnapshot;
   player: Player;
+  playerToken: string;
   hostToken?: string;
 };
 
-type JoinAck = { room: ClientRoomSnapshot; player: Player } | { ok: false; error: string };
+type JoinAck =
+  | { room: ClientRoomSnapshot; player: Player; playerToken?: string }
+  | { ok: false; error: string };
 
 type JoinPanelProps = {
   roomCode: string;
@@ -34,20 +37,31 @@ export function JoinPanel({ roomCode, existingSession, onJoined }: JoinPanelProp
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  function finishJoin(ack: JoinAck, hostToken: string | undefined) {
+  function finishJoin(
+    ack: JoinAck,
+    hostToken: string | undefined,
+    fallbackPlayerToken: string | undefined,
+  ) {
     if (!ack || "ok" in ack) {
       setError(translateError(ack?.error));
+      setSubmitting(false);
+      return;
+    }
+    const playerToken = ack.playerToken ?? fallbackPlayerToken;
+    if (!playerToken) {
+      setError(translateError("Invalid rejoin token"));
       setSubmitting(false);
       return;
     }
     saveSession({
       roomCode,
       playerId: ack.player.id,
+      playerToken,
       hostToken,
       name: ack.player.name,
       avatar: ack.player.avatar,
     });
-    onJoined({ room: ack.room, player: ack.player, hostToken });
+    onJoined({ room: ack.room, player: ack.player, playerToken, hostToken });
   }
 
   function handleRejoin() {
@@ -58,14 +72,18 @@ export function JoinPanel({ roomCode, existingSession, onJoined }: JoinPanelProp
       .timeout(10_000)
       .emit(
         "room:join",
-        { roomCode, playerId: existingSession.playerId },
+        {
+          roomCode,
+          playerId: existingSession.playerId,
+          playerToken: existingSession.playerToken,
+        },
         (timeoutError: Error | null, ack: JoinAck) => {
           if (timeoutError) {
             setError("A conexão demorou demais. Tente novamente.");
             setSubmitting(false);
             return;
           }
-          finishJoin(ack, existingSession.hostToken);
+          finishJoin(ack, existingSession.hostToken, existingSession.playerToken);
         },
       );
   }
@@ -97,7 +115,7 @@ export function JoinPanel({ roomCode, existingSession, onJoined }: JoinPanelProp
             setSubmitting(false);
             return;
           }
-          finishJoin(ack, undefined);
+          finishJoin(ack, undefined, undefined);
         },
       );
   }

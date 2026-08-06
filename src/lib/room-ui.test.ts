@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   computeVoteStats,
+  formatOmittedWarning,
   latestSuggestion,
   mergeSuggestions,
   normalizeRoomCode,
@@ -97,6 +98,24 @@ describe("latestSuggestion", () => {
   });
 });
 
+describe("formatOmittedWarning", () => {
+  it("reports total count and a sample of the omitted paths", () => {
+    const message = formatOmittedWarning([
+      { repository: "acme/app", paths: ["a.ts", "b.ts"] },
+    ]);
+    expect(message).toContain("2 arquivos");
+    expect(message).toContain("acme/app: a.ts");
+    expect(message).toContain("acme/app: b.ts");
+  });
+
+  it("truncates the sample and notes the remainder", () => {
+    const paths = Array.from({ length: 8 }, (_, i) => `file${i}.ts`);
+    const message = formatOmittedWarning([{ repository: "acme/app", paths }]);
+    expect(message).toContain("8 arquivos");
+    expect(message).toContain("e mais 3");
+  });
+});
+
 describe("translateError", () => {
   it("maps known server errors to Portuguese", () => {
     expect(translateError("Room not found")).toBe(
@@ -110,6 +129,21 @@ describe("translateError", () => {
     );
     expect(translateError("roomCode and hostToken are required")).toBe(
       "Dados obrigatórios ausentes.",
+    );
+  });
+
+  it("maps the newer validation and integrity errors to Portuguese", () => {
+    expect(translateError("Votes already revealed")).toBe(
+      "Os votos já foram revelados.",
+    );
+    expect(translateError("Invalid rejoin token")).toBe(
+      "Sessão inválida nesta sala. Entre novamente.",
+    );
+    expect(translateError("Invalid vote value")).toBe(
+      "Valor de voto inválido para este baralho.",
+    );
+    expect(translateError("GitHub request timed out")).toBe(
+      "O GitHub demorou demais para responder. Tente novamente.",
     );
   });
 

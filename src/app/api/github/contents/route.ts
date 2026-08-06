@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { assertHost } from "@/lib/host-auth";
+import { checkRoomRateLimit, RATE_LIMIT_MESSAGE } from "@/lib/rate-limit";
 import { getRoom } from "@/lib/room-store";
 import {
   GithubAuthError,
@@ -45,6 +46,10 @@ export async function POST(request: Request) {
 
   if (!assertHost(roomCode, hostToken)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (!checkRoomRateLimit(room.code)) {
+    return NextResponse.json({ error: RATE_LIMIT_MESSAGE }, { status: 429 });
   }
 
   try {

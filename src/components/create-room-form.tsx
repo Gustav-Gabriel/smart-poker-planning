@@ -44,6 +44,7 @@ type CreateAck =
       room: { code: string };
       player: Player;
       hostToken: string;
+      playerToken: string;
     }
   | { ok: false; error: string };
 
@@ -91,6 +92,7 @@ export function CreateRoomForm() {
           saveSession({
             roomCode: response.room.code,
             playerId: response.player.id,
+            playerToken: response.playerToken,
             hostToken: response.hostToken,
             name: response.player.name,
             avatar: response.player.avatar,

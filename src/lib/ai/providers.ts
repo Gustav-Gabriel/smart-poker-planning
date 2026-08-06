@@ -13,6 +13,8 @@ import {
   type VoteContext,
 } from "./prompts";
 
+const AI_REQUEST_TIMEOUT_MS = 30_000;
+
 type ChatCompletionInput = {
   provider: AiProvider;
   apiKey: string;
@@ -92,8 +94,22 @@ export async function runDeepAnalysis(
   };
 }
 
+async function aiFetch(url: string, init: RequestInit): Promise<Response> {
+  try {
+    return await fetch(url, {
+      ...init,
+      signal: AbortSignal.timeout(AI_REQUEST_TIMEOUT_MS),
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === "TimeoutError") {
+      throw new Error("A requisição para o provedor de IA expirou");
+    }
+    throw error;
+  }
+}
+
 async function openAiCompletion(input: ChatCompletionInput): Promise<string> {
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+  const response = await aiFetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${input.apiKey}`,
@@ -120,7 +136,7 @@ async function geminiCompletion(input: ChatCompletionInput): Promise<string> {
   const endpoint =
     "https://generativelanguage.googleapis.com/v1beta/models/" +
     `gemini-2.0-flash:generateContent?key=${encodeURIComponent(input.apiKey)}`;
-  const response = await fetch(endpoint, {
+  const response = await aiFetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -138,7 +154,7 @@ async function geminiCompletion(input: ChatCompletionInput): Promise<string> {
 }
 
 async function claudeCompletion(input: ChatCompletionInput): Promise<string> {
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
+  const response = await aiFetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
       "x-api-key": input.apiKey,

@@ -1,3 +1,5 @@
+const REQUEST_TIMEOUT_MS = 20_000;
+
 export type TenorGif = {
   id: string;
   url: string;
@@ -32,9 +34,18 @@ export async function searchTenor(q: string): Promise<TenorGif[]> {
     media_filter: "gif",
   });
 
-  const response = await fetch(
-    `https://tenor.googleapis.com/v2/search?${params.toString()}`,
-  );
+  let response: Response;
+  try {
+    response = await fetch(
+      `https://tenor.googleapis.com/v2/search?${params.toString()}`,
+      { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) },
+    );
+  } catch (error) {
+    if (error instanceof Error && error.name === "TimeoutError") {
+      throw new Error("Tenor request timed out");
+    }
+    throw error;
+  }
 
   if (!response.ok) {
     throw new Error(`Tenor request failed with status ${response.status}`);

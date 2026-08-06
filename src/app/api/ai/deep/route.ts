@@ -2,8 +2,10 @@ import { NextResponse } from "next/server";
 import { runDeepAnalysis } from "@/lib/ai/providers";
 import { fetchSelectedContents } from "@/lib/github/client";
 import { assertHost } from "@/lib/host-auth";
+import { checkRoomRateLimit, RATE_LIMIT_MESSAGE } from "@/lib/rate-limit";
 import { getRoom, touchRoom } from "@/lib/room-store";
 import { getIO } from "@/lib/socket/io";
+import type { AiSuggestion } from "@/lib/types";
 
 type DeepRequestBody = {
   roomCode?: string;
@@ -33,6 +35,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  if (!checkRoomRateLimit(room.code)) {
+    return NextResponse.json({ error: RATE_LIMIT_MESSAGE }, { status: 429 });
+  }
+
   try {
     const repositories = await Promise.all(
       room.repos.map(async (repo) => {
@@ -50,10 +56,13 @@ export async function POST(request: Request) {
         };
       }),
     );
+    const omitted = repositories
+      .filter((repo) => repo.omitted.length > 0)
+      .map((repo) => ({ repository: repo.repository, paths: repo.omitted }));
     const priorSummary = room.suggestions
       .toReversed()
       .find((suggestion) => suggestion.kind === "summary")?.payload;
-    const suggestion = await runDeepAnalysis({
+    const suggestion: AiSuggestion = await runDeepAnalysis({
       provider: room.secrets.aiProvider,
       apiKey: room.secrets.aiApiKey,
       story: room.story,
@@ -65,6 +74,9 @@ export async function POST(request: Request) {
       repositories,
       priorSummary,
     });
+    if (omitted.length > 0) {
+      suggestion.omitted = omitted;
+    }
     room.suggestions.push(suggestion);
     touchRoom(room.code);
     emitAi(room.code, "ai:deep", suggestion);

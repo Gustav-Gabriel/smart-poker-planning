@@ -40,6 +40,7 @@ export default function RoomPage() {
           code={code}
           initialRoom={joined.room}
           player={joined.player}
+          playerToken={joined.playerToken}
           hostToken={joined.hostToken}
           onLeave={() => router.push("/")}
         />

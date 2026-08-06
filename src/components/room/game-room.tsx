@@ -18,6 +18,7 @@ type GameRoomProps = {
   code: string;
   initialRoom: ClientRoomSnapshot;
   player: Player;
+  playerToken: string;
   hostToken?: string;
   onLeave: () => void;
 };
@@ -26,6 +27,7 @@ export function GameRoom({
   code,
   initialRoom,
   player,
+  playerToken,
   hostToken,
   onLeave,
 }: GameRoomProps) {
@@ -40,10 +42,12 @@ export function GameRoom({
   const [voteError, setVoteError] = useState("");
   const [roomLostError, setRoomLostError] = useState("");
   const playerIdRef = useRef(player.id);
+  const playerTokenRef = useRef(playerToken);
 
   useEffect(() => {
     playerIdRef.current = player.id;
-  }, [player.id]);
+    playerTokenRef.current = playerToken;
+  }, [player.id, playerToken]);
 
   useEffect(() => {
     const socket = getSocket();
@@ -84,7 +88,11 @@ export function GameRoom({
     function reattach() {
       socket.emit(
         "room:join",
-        { roomCode: code, playerId: playerIdRef.current },
+        {
+          roomCode: code,
+          playerId: playerIdRef.current,
+          playerToken: playerTokenRef.current,
+        },
         (ack: unknown) => {
           if (ack && typeof ack === "object" && "error" in ack) {
             setRoomLostError(

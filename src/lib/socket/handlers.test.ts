@@ -175,6 +175,8 @@ describe("registerSocketHandlers", () => {
       avatar: { type: "emoji", value: "🐸" },
     });
     const guestPlayer = joined.player as { id: string };
+    const guestPlayerToken = joined.playerToken as string;
+    expect(guestPlayerToken).toBeTruthy();
 
     expect(
       await emitAck(guest, "player:update", {
@@ -196,6 +198,15 @@ describe("registerSocketHandlers", () => {
       await emitAck(rejoined, "room:join", {
         roomCode: room.code,
         playerId: guestPlayer.id,
+        playerToken: "wrong-token",
+      }),
+    ).toMatchObject({ ok: false, error: "Invalid rejoin token" });
+
+    expect(
+      await emitAck(rejoined, "room:join", {
+        roomCode: room.code,
+        playerId: guestPlayer.id,
+        playerToken: guestPlayerToken,
       }),
     ).toHaveProperty("room");
     expect(getRoom(room.code)?.players.get(guestPlayer.id)?.connected).toBe(true);

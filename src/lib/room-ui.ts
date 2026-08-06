@@ -1,4 +1,22 @@
-import type { AiSuggestion, ClientPlayer } from "./types";
+import type { AiSuggestion, ClientPlayer, OmittedRepoFiles } from "./types";
+
+const OMITTED_SAMPLE_SIZE = 5;
+
+export function formatOmittedWarning(omitted: OmittedRepoFiles[]): string {
+  const totalPaths = omitted.reduce((sum, repo) => sum + repo.paths.length, 0);
+  const samples = omitted.flatMap((repo) =>
+    repo.paths.map((path) => `${repo.repository}: ${path}`),
+  );
+  const shown = samples.slice(0, OMITTED_SAMPLE_SIZE);
+  const remainder = samples.length - shown.length;
+
+  const noun = totalPaths === 1 ? "arquivo" : "arquivos";
+  let message = `${totalPaths} ${noun} foram omitidos por exceder os limites de contexto: ${shown.join(", ")}`;
+  if (remainder > 0) {
+    message += ` (e mais ${remainder})`;
+  }
+  return `${message}.`;
+}
 
 export type MutationAck = { ok: true } | { ok: false; error: string };
 
@@ -82,6 +100,41 @@ const ERROR_TRANSLATIONS: Array<[RegExp, string]> = [
   [/name and avatar are required/i, "Informe nome e avatar para entrar."],
   [/not in this room/i, "Você não está conectado a esta sala."],
   [/unauthorized/i, "Apenas o anfitrião pode fazer isso."],
+  [/votes already revealed/i, "Os votos já foram revelados."],
+  [
+    /invalid rejoin token/i,
+    "Sessão inválida nesta sala. Entre novamente.",
+  ],
+  [/invalid vote value/i, "Valor de voto inválido para este baralho."],
+  [
+    /room name is required/i,
+    "Informe um nome de sala válido.",
+  ],
+  [/invalid deck/i, "Baralho inválido."],
+  [/host name is required/i, "Informe seu nome para criar a sala."],
+  [/invalid host avatar/i, "Avatar do anfitrião inválido."],
+  [/invalid room secrets/i, "Credenciais da sala inválidas."],
+  [/invalid ai provider/i, "Provedor de IA inválido."],
+  [/ai api key is required/i, "Informe a chave da API de IA."],
+  [/jira site is required/i, "Informe o site do Jira."],
+  [/jira email is required/i, "Informe o e-mail do Jira."],
+  [/jira token is required/i, "Informe o token do Jira."],
+  [/invalid github token/i, "Token do GitHub inválido."],
+  [/invalid room payload/i, "Dados da sala inválidos."],
+  [/invalid name/i, "Nome inválido."],
+  [/invalid avatar/i, "Avatar inválido."],
+  [
+    /jira request timed out/i,
+    "O Jira demorou demais para responder. Tente novamente.",
+  ],
+  [
+    /github request timed out/i,
+    "O GitHub demorou demais para responder. Tente novamente.",
+  ],
+  [
+    /tenor request timed out/i,
+    "O Tenor demorou demais para responder. Tente novamente.",
+  ],
   [
     /jira authentication failed/i,
     "Falha na autenticação do Jira. Verifique e-mail e token.",

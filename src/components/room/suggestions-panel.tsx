@@ -1,6 +1,6 @@
 "use client";
 
-import { latestSuggestion } from "@/lib/room-ui";
+import { formatOmittedWarning, latestSuggestion } from "@/lib/room-ui";
 import type { AiSuggestion } from "@/lib/types";
 
 type SuggestionsPanelProps = {
@@ -70,6 +70,11 @@ export function SuggestionsPanel({
         {deepError ? (
           <p className="form-error" role="alert">
             {deepError}
+          </p>
+        ) : null}
+        {deep?.omitted && deep.omitted.length > 0 ? (
+          <p className="form-warning" role="status">
+            {formatOmittedWarning(deep.omitted)}
           </p>
         ) : null}
         {deep ? (

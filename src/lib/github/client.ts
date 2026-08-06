@@ -3,6 +3,7 @@ import { parseGithubUrl } from "./parse-url";
 export const MAX_FILES = 40;
 export const MAX_FILE_BYTES = 40_960;
 export const MAX_TOTAL_BYTES = 204_800;
+const REQUEST_TIMEOUT_MS = 20_000;
 
 export class GithubAuthError extends Error {
   constructor(message = "GitHub authentication failed") {
@@ -39,7 +40,18 @@ async function githubFetch(
   url: string,
   init: GithubFetchInit,
 ): Promise<Response> {
-  const response = await fetch(url, { headers: githubHeaders(init.token) });
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      headers: githubHeaders(init.token),
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === "TimeoutError") {
+      throw new Error("GitHub request timed out");
+    }
+    throw error;
+  }
 
   if (response.status === 401 || response.status === 403) {
     throw new GithubAuthError();

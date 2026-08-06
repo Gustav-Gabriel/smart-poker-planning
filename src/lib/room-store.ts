@@ -60,10 +60,15 @@ export type CreateRoomInput = {
   secrets: CreateRoomSecretsInput;
 };
 
+function generatePlayerToken(): string {
+  return randomBytes(24).toString("hex");
+}
+
 export function createRoom(input: CreateRoomInput): {
   room: StoredRoom;
   hostToken: string;
   player: Player;
+  playerToken: string;
 } {
   purgeExpired();
 
@@ -74,6 +79,7 @@ export function createRoom(input: CreateRoomInput): {
 
   const hostToken = randomBytes(32).toString("hex");
   const playerId = generatePlayerId();
+  const playerToken = generatePlayerToken();
   const now = Date.now();
 
   const player: Player = {
@@ -91,6 +97,7 @@ export function createRoom(input: CreateRoomInput): {
     deck: input.deck,
     hostId: playerId,
     players: new Map([[playerId, player]]),
+    playerTokens: new Map([[playerId, playerToken]]),
     story: null,
     repos: [],
     revealed: false,
@@ -104,7 +111,7 @@ export function createRoom(input: CreateRoomInput): {
 
   rooms.set(code, room);
 
-  return { room, hostToken, player };
+  return { room, hostToken, player, playerToken };
 }
 
 export type JoinRoomInput = {
@@ -115,7 +122,7 @@ export type JoinRoomInput = {
 export function joinRoom(
   code: string,
   input: JoinRoomInput,
-): { room: StoredRoom; player: Player } | { error: string } {
+): { room: StoredRoom; player: Player; playerToken: string } | { error: string } {
   purgeExpired();
 
   const room = getRoom(code);
@@ -128,6 +135,7 @@ export function joinRoom(
   }
 
   const playerId = generatePlayerId();
+  const playerToken = generatePlayerToken();
   const player: Player = {
     id: playerId,
     name: input.name,
@@ -138,14 +146,16 @@ export function joinRoom(
   };
 
   room.players.set(playerId, player);
+  room.playerTokens.set(playerId, playerToken);
   touchRoom(room.code);
 
-  return { room, player };
+  return { room, player, playerToken };
 }
 
 export function rejoinRoom(
   code: string,
   playerId: string,
+  playerToken: string,
 ): { ok: true; room: StoredRoom; player: Player } | { ok: false; error: string } {
   purgeExpired();
 
@@ -157,6 +167,11 @@ export function rejoinRoom(
   const player = room.players.get(playerId);
   if (!player) {
     return { ok: false, error: "Player not found" };
+  }
+
+  const expectedToken = room.playerTokens.get(playerId);
+  if (!expectedToken || !playerToken || expectedToken !== playerToken) {
+    return { ok: false, error: "Invalid rejoin token" };
   }
 
   player.connected = true;
@@ -178,6 +193,10 @@ export function castVote(
   const player = room.players.get(playerId);
   if (!player) {
     return { ok: false, error: "Player not found" };
+  }
+
+  if (room.revealed) {
+    return { ok: false, error: "Votes already revealed" };
   }
 
   player.vote = value;

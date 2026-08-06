@@ -35,6 +35,8 @@ Este app precisa de **um processo Node.js contínuo** com WebSockets. Render e R
 4. **Variáveis de ambiente:** defina pelo menos `TENOR_API_KEY`. A plataforma costuma injetar `PORT` automaticamente.
 5. Garanta que a instância **permaneça acordada** durante a sessão — WebSockets exigem conexão persistente; em planos gratuitos, o serviço pode hibernar após inatividade.
 
+> `tsx`, `typescript` e os pacotes `@types/*` usados pelo `next build` e pelo `server.ts` ficam em `dependencies` (não em `devDependencies`) de propósito: Render e Railway definem `NODE_ENV=production` antes do `npm install`, e o npm ignora `devDependencies` nesse caso. Isso garante que `npm run build` e `npm start` funcionem sem passos extras.
+
 ### Render
 
 - Tipo de serviço: **Web Service**

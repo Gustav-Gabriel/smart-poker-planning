@@ -27,6 +27,11 @@ export type Story = {
   status?: string;
 };
 
+export type OmittedRepoFiles = {
+  repository: string;
+  paths: string[];
+};
+
 export type AiSuggestion = {
   kind: "summary" | "deep";
   createdAt: number;
@@ -39,6 +44,8 @@ export type AiSuggestion = {
     openQuestions?: string[];
     estimateTension?: string;
   };
+  /** Repository file paths dropped for exceeding the context caps (deep analysis only). */
+  omitted?: OmittedRepoFiles[];
 };
 
 export type RoomState = {
@@ -47,6 +54,7 @@ export type RoomState = {
   deck: DeckType;
   hostId: string;
   players: Map<string, Player>;
+  playerTokens: Map<string, string>;
   story: Story | null;
   repos: RepoAttachment[];
   revealed: boolean;
