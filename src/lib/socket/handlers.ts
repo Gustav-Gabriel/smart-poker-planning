@@ -1,4 +1,5 @@
 import type { Server, Socket } from "socket.io";
+import { runSummary } from "../ai/providers";
 import { toClientSnapshot } from "../room-snapshot";
 import {
   castVote,
@@ -73,6 +74,44 @@ async function finishMutation(
   await broadcastRoom(io, roomCode);
   ack(result);
   return true;
+}
+
+function generateSummary(io: Server, roomCode: string): void {
+  const room = getRoom(roomCode);
+  if (!room) return;
+
+  const votes = [...room.players.values()]
+    .filter((player) => player.vote !== null)
+    .map((player) => ({ player: player.name, vote: player.vote }));
+  if (votes.length === 0) {
+    io.to(room.code).emit("ai:summary", {
+      error: "Não há votos para resumir",
+    });
+    return;
+  }
+
+  void runSummary({
+    provider: room.secrets.aiProvider,
+    apiKey: room.secrets.aiApiKey,
+    story: room.story,
+    votes,
+    deck: room.deck,
+  })
+    .then((suggestion) => {
+      const activeRoom = getRoom(room.code);
+      if (!activeRoom) return;
+      activeRoom.suggestions.push(suggestion);
+      touchRoom(activeRoom.code);
+      io.to(activeRoom.code).emit("ai:summary", suggestion);
+    })
+    .catch((error: unknown) => {
+      io.to(room.code).emit("ai:summary", {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Falha ao gerar resumo com IA",
+      });
+    });
 }
 
 export function registerSocketHandlers(io: Server): void {
@@ -186,6 +225,7 @@ export function registerSocketHandlers(io: Server): void {
         );
         if (succeeded) {
           io.to(identity.roomCode).emit("ai:summary", { status: "pending" });
+          generateSummary(io, identity.roomCode);
         }
       },
     );
