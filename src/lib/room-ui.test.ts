@@ -102,10 +102,35 @@ describe("translateError", () => {
     expect(translateError("Room not found")).toBe(
       "Sala não encontrada ou expirada.",
     );
+    expect(translateError("Failed to fetch Jira issue")).toBe(
+      "Não foi possível buscar a issue no Jira.",
+    );
+    expect(translateError("Failed to fetch GitHub tree")).toBe(
+      "Não foi possível listar os arquivos do repositório no GitHub.",
+    );
+    expect(translateError("roomCode and hostToken are required")).toBe(
+      "Dados obrigatórios ausentes.",
+    );
   });
 
-  it("falls back to the original message when unknown", () => {
-    expect(translateError("Something weird")).toBe("Something weird");
+  it("never exposes hostToken in user-facing text", () => {
+    expect(translateError("roomCode, hostToken, and url are required")).not
+      .toMatch(/hosttoken/i);
+    expect(translateError("unknown hostToken leak abc123")).toBe(
+      "Não foi possível concluir a operação. Tente novamente.",
+    );
+  });
+
+  it("falls back to a generic Portuguese message for unknown English", () => {
+    expect(translateError("Something weird")).toBe(
+      "Não foi possível concluir a operação. Tente novamente.",
+    );
+  });
+
+  it("passes through existing Portuguese messages", () => {
+    expect(translateError("Chave da IA não configurada")).toBe(
+      "Chave da IA não configurada",
+    );
   });
 
   it("returns a generic message when empty", () => {
