@@ -17,6 +17,9 @@ export const metadata: Metadata = {
   title: "Smart Planning Poker",
   description:
     "Planning poker com IA e contexto do Jira e dos seus repositórios.",
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+  },
 };
 
 export default function RootLayout({
