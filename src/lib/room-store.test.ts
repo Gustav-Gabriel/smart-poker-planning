@@ -143,3 +143,56 @@ describe("room-store", () => {
     expect(missingToken).toEqual({ ok: false, error: "Invalid rejoin token" });
   });
 });
+
+type RoomsGlobal = typeof globalThis & {
+  __smartPokerPlanningRooms?: Map<string, unknown>;
+};
+
+describe("room-store globalThis singleton", () => {
+  it("stores rooms on globalThis.__smartPokerPlanningRooms", () => {
+    const { room } = createRoom({
+      name: "Singleton",
+      deck: "fibonacci",
+      hostName: "Host",
+      hostAvatar: { type: "emoji", value: "👑" },
+      secrets: {
+        aiProvider: "openai",
+        aiApiKey: "k",
+        jiraSite: "https://x.atlassian.net",
+        jiraEmail: "h@x.com",
+        jiraToken: "t",
+      },
+    });
+
+    const g = globalThis as RoomsGlobal;
+    expect(g.__smartPokerPlanningRooms).toBeInstanceOf(Map);
+    expect(g.__smartPokerPlanningRooms?.get(room.code)).toBeDefined();
+    expect(getRoom(room.code)).toBe(g.__smartPokerPlanningRooms?.get(room.code));
+  });
+
+  it("clears the same Map reference on _resetStoreForTests", () => {
+    createRoom({
+      name: "Reset",
+      deck: "tshirt",
+      hostName: "Host",
+      hostAvatar: { type: "emoji", value: "👑" },
+      secrets: {
+        aiProvider: "openai",
+        aiApiKey: "k",
+        jiraSite: "https://x.atlassian.net",
+        jiraEmail: "h@x.com",
+        jiraToken: "t",
+      },
+    });
+
+    const g = globalThis as RoomsGlobal;
+    const before = g.__smartPokerPlanningRooms;
+    expect(before?.size).toBeGreaterThan(0);
+
+    _resetStoreForTests();
+
+    expect(g.__smartPokerPlanningRooms).toBe(before);
+    expect(g.__smartPokerPlanningRooms?.size).toBe(0);
+    expect(getRoom(Array.from(before?.keys() ?? [])[0] ?? "NOPE")).toBeUndefined();
+  });
+});
