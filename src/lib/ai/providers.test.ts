@@ -1,9 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { formatAiProviderError, GEMINI_MODEL } from "./providers";
+import { formatAiProviderError, GEMINI_MODEL, GEMINI_MODELS } from "./providers";
 
-describe("GEMINI_MODEL", () => {
-  it("uses gemini-2.5-flash", () => {
-    expect(GEMINI_MODEL).toBe("gemini-2.5-flash");
+describe("GEMINI_MODELS", () => {
+  it("prefers current Gemini 3.x Flash ids with 2.5 fallbacks", () => {
+    expect(GEMINI_MODEL).toBe("gemini-3.6-flash");
+    expect(GEMINI_MODELS).toEqual([
+      "gemini-3.6-flash",
+      "gemini-3.5-flash",
+      "gemini-2.5-flash",
+      "gemini-2.5-flash-lite",
+    ]);
   });
 });
 

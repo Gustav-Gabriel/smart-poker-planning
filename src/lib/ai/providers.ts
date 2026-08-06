@@ -15,8 +15,19 @@ import {
 
 const AI_REQUEST_TIMEOUT_MS = 30_000;
 
-/** Current Gemini Flash model used for chat completions. */
-export const GEMINI_MODEL = "gemini-2.5-flash";
+/**
+ * Gemini Flash models to try in order. Google retires Flash IDs often;
+ * 404 on one model falls through to the next.
+ */
+export const GEMINI_MODELS = [
+  "gemini-3.6-flash",
+  "gemini-3.5-flash",
+  "gemini-2.5-flash",
+  "gemini-2.5-flash-lite",
+] as const;
+
+/** Primary Gemini Flash model (first in the fallback list). */
+export const GEMINI_MODEL = GEMINI_MODELS[0];
 
 const ERROR_SNIPPET_MAX = 160;
 
@@ -138,24 +149,48 @@ async function openAiCompletion(input: ChatCompletionInput): Promise<string> {
 }
 
 async function geminiCompletion(input: ChatCompletionInput): Promise<string> {
-  const endpoint =
-    "https://generativelanguage.googleapis.com/v1beta/models/" +
-    `${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(input.apiKey)}`;
-  const response = await aiFetch(endpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      systemInstruction: { parts: [{ text: input.system }] },
-      contents: [{ role: "user", parts: [{ text: input.user }] }],
-      generationConfig: { responseMimeType: "application/json" },
-    }),
+  const body = JSON.stringify({
+    systemInstruction: { parts: [{ text: input.system }] },
+    contents: [{ role: "user", parts: [{ text: input.user }] }],
+    generationConfig: { responseMimeType: "application/json" },
   });
-  const data = (await readProviderResponse(response)) as {
-    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+  const headers = {
+    "Content-Type": "application/json",
+    "x-goog-api-key": input.apiKey,
   };
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error("Resposta vazia do Gemini");
-  return text;
+
+  let lastError: Error | undefined;
+
+  for (const model of GEMINI_MODELS) {
+    const endpoint =
+      "https://generativelanguage.googleapis.com/v1beta/models/" +
+      `${model}:generateContent`;
+    const response = await aiFetch(endpoint, {
+      method: "POST",
+      headers,
+      body,
+    });
+
+    if (response.status === 404) {
+      const data = (await response.json().catch(() => null)) as unknown;
+      lastError = new Error(formatAiProviderError(404, data));
+      continue;
+    }
+
+    const data = (await readProviderResponse(response)) as {
+      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+    };
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) throw new Error("Resposta vazia do Gemini");
+    return text;
+  }
+
+  throw (
+    lastError ??
+    new Error(
+      "Provedor de IA respondeu com status 404: nenhum modelo Gemini Flash disponível para esta chave",
+    )
+  );
 }
 
 async function claudeCompletion(input: ChatCompletionInput): Promise<string> {
