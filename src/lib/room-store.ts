@@ -35,8 +35,11 @@ export function assertHost(room: StoredRoom, hostToken: string): boolean {
   return room.secrets.hostToken === hostToken;
 }
 
-function touchRoom(room: StoredRoom): void {
-  room.lastActivityAt = Date.now();
+export function touchRoom(code: string, now: number = Date.now()): void {
+  const room = getRoom(code);
+  if (room) {
+    room.lastActivityAt = now;
+  }
 }
 
 export function purgeExpired(now: number = Date.now()): void {
@@ -135,7 +138,7 @@ export function joinRoom(
   };
 
   room.players.set(playerId, player);
-  touchRoom(room);
+  touchRoom(room.code);
 
   return { room, player };
 }
@@ -157,7 +160,7 @@ export function rejoinRoom(
   }
 
   player.connected = true;
-  touchRoom(room);
+  touchRoom(room.code);
 
   return { ok: true, room, player };
 }
@@ -178,7 +181,7 @@ export function castVote(
   }
 
   player.vote = value;
-  touchRoom(room);
+  touchRoom(room.code);
 
   return { ok: true };
 }
@@ -197,7 +200,7 @@ export function revealVotes(
   }
 
   room.revealed = true;
-  touchRoom(room);
+  touchRoom(room.code);
 
   return { ok: true };
 }
@@ -219,7 +222,7 @@ export function resetVotes(
   for (const player of room.players.values()) {
     player.vote = null;
   }
-  touchRoom(room);
+  touchRoom(room.code);
 
   return { ok: true };
 }
@@ -239,7 +242,7 @@ export function setStory(
   }
 
   room.story = story;
-  touchRoom(room);
+  touchRoom(room.code);
 
   return { ok: true };
 }
@@ -259,7 +262,7 @@ export function setRepos(
   }
 
   room.repos = repos;
-  touchRoom(room);
+  touchRoom(room.code);
 
   return { ok: true };
 }
