@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import type { TenorGif } from "@/lib/tenor/client";
+import type { KlipyGif } from "@/lib/klipy/client";
 import type { Player } from "@/lib/types";
 
 const EMOJI_OPTIONS = [
@@ -33,7 +33,7 @@ export function AvatarPicker({ value, onChange }: AvatarPickerProps) {
     value.type === "gif" ? "gif" : "emoji",
   );
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<TenorGif[]>([]);
+  const [results, setResults] = useState<KlipyGif[]>([]);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState("");
 
@@ -46,10 +46,10 @@ export function AvatarPicker({ value, onChange }: AvatarPickerProps) {
     setError("");
     try {
       const response = await fetch(
-        `/api/tenor/search?q=${encodeURIComponent(trimmed)}`,
+        `/api/klipy/search?q=${encodeURIComponent(trimmed)}`,
       );
       const data = (await response.json()) as {
-        results?: TenorGif[];
+        results?: KlipyGif[];
         error?: string;
       };
       if (!response.ok) {

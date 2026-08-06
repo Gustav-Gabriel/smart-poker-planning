@@ -32,12 +32,15 @@ describe("isValidAvatar", () => {
     expect(isValidAvatar({ type: "emoji", value: "" })).toBe(false);
   });
 
-  it("only accepts https Tenor URLs for gif avatars", () => {
+  it("only accepts https KLIPY URLs for gif avatars", () => {
     expect(
-      isValidAvatar({ type: "gif", value: "https://media.tenor.com/abc.gif" }),
+      isValidAvatar({ type: "gif", value: "https://media.klipy.com/abc.gif" }),
     ).toBe(true);
     expect(
-      isValidAvatar({ type: "gif", value: "http://media.tenor.com/abc.gif" }),
+      isValidAvatar({ type: "gif", value: "https://cdn.klipy.com/abc.gif" }),
+    ).toBe(true);
+    expect(
+      isValidAvatar({ type: "gif", value: "http://media.klipy.com/abc.gif" }),
     ).toBe(false);
     expect(
       isValidAvatar({ type: "gif", value: "https://evil.com/abc.gif" }),

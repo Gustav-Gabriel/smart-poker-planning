@@ -7,7 +7,7 @@ Planning poker em tempo real com IA, Jira e GitHub — monolito Next.js + Socket
 ```bash
 npm install
 cp .env.example .env
-# Edite .env e defina TENOR_API_KEY (obrigatório para GIFs no avatar)
+# Edite .env e defina KLIPY_API_KEY (obrigatório para GIFs no avatar)
 npm run dev
 ```
 
@@ -32,7 +32,7 @@ Este app precisa de **um processo Node.js contínuo** com WebSockets. Render e R
 1. Conecte o repositório Git ao serviço.
 2. **Build command:** `npm install && npm run build`
 3. **Start command:** `npm start`
-4. **Variáveis de ambiente:** defina pelo menos `TENOR_API_KEY`. A plataforma costuma injetar `PORT` automaticamente.
+4. **Variáveis de ambiente:** defina pelo menos `KLIPY_API_KEY`. A plataforma costuma injetar `PORT` automaticamente.
 5. Garanta que a instância **permaneça acordada** durante a sessão — WebSockets exigem conexão persistente; em planos gratuitos, o serviço pode hibernar após inatividade.
 
 > `tsx`, `typescript` e os pacotes `@types/*` usados pelo `next build` e pelo `server.ts` ficam em `dependencies` (não em `devDependencies`) de propósito: Render e Railway definem `NODE_ENV=production` antes do `npm install`, e o npm ignora `devDependencies` nesse caso. Isso garante que `npm run build` e `npm start` funcionem sem passos extras.
@@ -43,14 +43,14 @@ Este app precisa de **um processo Node.js contínuo** com WebSockets. Render e R
 - Runtime: Node
 - Build: `npm install && npm run build`
 - Start: `npm start`
-- Env: `TENOR_API_KEY=<sua chave>`
+- Env: `KLIPY_API_KEY=<sua chave>`
 
 ### Railway
 
 - Novo projeto → **Deploy from GitHub**
 - Build: `npm install && npm run build`
 - Start: `npm start`
-- Variables: `TENOR_API_KEY`
+- Variables: `KLIPY_API_KEY`
 
 ## Por que não Vercel-only no MVP?
 

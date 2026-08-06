@@ -132,8 +132,13 @@ const ERROR_TRANSLATIONS: Array<[RegExp, string]> = [
     "O GitHub demorou demais para responder. Tente novamente.",
   ],
   [
-    /tenor request timed out/i,
-    "O Tenor demorou demais para responder. Tente novamente.",
+    /klipy request timed out/i,
+    "O KLIPY demorou demais para responder. Tente novamente.",
+  ],
+  [/falha ao buscar gifs no klipy/i, "Não foi possível buscar GIFs no KLIPY."],
+  [
+    /chave klipy não configurada/i,
+    "Serviço de GIFs indisponível: chave KLIPY não configurada.",
   ],
   [
     /jira authentication failed/i,

@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { searchTenor } from "@/lib/tenor/client";
+import { searchKlipy } from "@/lib/klipy/client";
 
 export async function GET(request: Request) {
-  const apiKey = process.env.TENOR_API_KEY;
+  const apiKey = process.env.KLIPY_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "Serviço de GIFs indisponível: chave Tenor não configurada." },
+      { error: "Serviço de GIFs indisponível: chave KLIPY não configurada." },
       { status: 503 },
     );
   }
@@ -18,11 +18,11 @@ export async function GET(request: Request) {
   }
 
   try {
-    const results = await searchTenor(q);
+    const results = await searchKlipy(q);
     return NextResponse.json({ results });
   } catch {
     return NextResponse.json(
-      { error: "Falha ao buscar GIFs no Tenor" },
+      { error: "Falha ao buscar GIFs no KLIPY" },
       { status: 502 },
     );
   }

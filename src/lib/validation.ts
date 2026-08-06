@@ -6,7 +6,7 @@ export const MAX_NAME_LENGTH = 80;
 export const MAX_SECRET_LENGTH = 512;
 export const MAX_EMOJI_LENGTH = 16;
 
-const TENOR_HOSTS = new Set(["tenor.com", "media.tenor.com", "www.tenor.com"]);
+const KLIPY_HOSTS = new Set(["klipy.com", "www.klipy.com", "media.klipy.com", "cdn.klipy.com"]);
 
 export function clampString(value: unknown, maxLength: number): string | null {
   if (typeof value !== "string") return null;
@@ -23,7 +23,7 @@ export function isValidAiProvider(value: unknown): value is AiProvider {
   return value === "openai" || value === "gemini" || value === "claude";
 }
 
-function isSafeTenorUrl(value: string): boolean {
+function isSafeKlipyUrl(value: string): boolean {
   let url: URL;
   try {
     url = new URL(value);
@@ -31,7 +31,7 @@ function isSafeTenorUrl(value: string): boolean {
     return false;
   }
   if (url.protocol !== "https:") return false;
-  return TENOR_HOSTS.has(url.hostname) || url.hostname.endsWith(".tenor.com");
+  return KLIPY_HOSTS.has(url.hostname) || url.hostname.endsWith(".klipy.com");
 }
 
 export function isValidAvatar(value: unknown): value is Player["avatar"] {
@@ -47,7 +47,7 @@ export function isValidAvatar(value: unknown): value is Player["avatar"] {
   }
 
   if (avatar.type === "gif") {
-    return typeof avatar.value === "string" && isSafeTenorUrl(avatar.value);
+    return typeof avatar.value === "string" && isSafeKlipyUrl(avatar.value);
   }
 
   return false;
