@@ -21,7 +21,19 @@ const ROOM_TTL_MS = 2 * 60 * 60 * 1000;
 
 type StoredRoom = RoomState & { secrets: RoomSecrets };
 
-const rooms = new Map<string, StoredRoom>();
+type RoomsGlobal = typeof globalThis & {
+  __smartPokerPlanningRooms?: Map<string, StoredRoom>;
+};
+
+function getRoomsMap(): Map<string, StoredRoom> {
+  const g = globalThis as RoomsGlobal;
+  if (!g.__smartPokerPlanningRooms) {
+    g.__smartPokerPlanningRooms = new Map<string, StoredRoom>();
+  }
+  return g.__smartPokerPlanningRooms;
+}
+
+const rooms = getRoomsMap();
 
 export function _resetStoreForTests(): void {
   rooms.clear();
