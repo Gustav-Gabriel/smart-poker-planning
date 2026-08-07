@@ -1175,35 +1175,52 @@ a:focus-visible {
   text-align: center;
 }
 
-.room--table .room__layout--table {
+.room--table {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  min-height: 100vh;
+}
+
+.room--table .room__header {
+  flex: 0 0 auto;
+}
+
+.room--table .room__layout--table {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
   width: calc(100% - 48px);
   max-width: 1400px;
   margin: 0 auto;
   padding: 24px 0 40px;
-  min-height: calc(100vh - 140px);
+  min-height: 0;
 }
 
 .room--table .room__table {
-  flex: 1;
+  flex: 0 0 auto;
+  width: 100%;
   min-width: 0;
-  padding-bottom: 8px;
 }
 
 .room--table .room__table-footer {
   position: static;
   z-index: 1;
   display: flex;
+  flex: 0 0 auto;
   flex-direction: column;
+  align-items: center;
   gap: 12px;
-  padding: 8px 0 24px;
+  width: 100%;
+  padding: 0;
   background: transparent;
 }
 
 .room--table .room__table-footer .vote-deck {
   margin: 0;
+  width: 100%;
 }
 
 .room--table .vote-deck__cards {
@@ -1227,7 +1244,7 @@ a:focus-visible {
   flex-wrap: wrap;
   gap: 12px;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
 }
 
 .panel {
@@ -1726,6 +1743,11 @@ a:focus-visible {
 
 .participants--table {
   width: 100%;
+  height: auto;
+}
+
+.participants--table .panel__heading {
+  margin-bottom: 12px;
 }
 
 .participants--table .participants__list {
@@ -1734,6 +1756,7 @@ a:focus-visible {
   flex-wrap: wrap;
   justify-content: space-evenly;
   align-items: flex-start;
+  align-content: flex-start;
   gap: 20px 28px;
   width: 100%;
   overflow-x: visible;
