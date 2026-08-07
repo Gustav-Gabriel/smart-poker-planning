@@ -66,7 +66,7 @@ export async function searchKlipy(q: string): Promise<KlipyGif[]> {
 
   const params = new URLSearchParams({
     q,
-    per_page: "16",
+    per_page: "48",
     content_filter: "medium",
   });
 

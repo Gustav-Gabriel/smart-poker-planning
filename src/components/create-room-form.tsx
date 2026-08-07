@@ -61,7 +61,7 @@ export function CreateRoomForm() {
       roomName: String(form.get("roomName") ?? ""),
       deck: String(form.get("deck")) as DeckType,
       aiProvider: String(form.get("aiProvider")) as AiProvider,
-      gitToken: String(form.get("gitToken") ?? ""),
+      gitToken: String(form.get("spp-github-token") ?? ""),
       hostName: String(form.get("hostName") ?? ""),
       hostAvatar,
     };
@@ -100,7 +100,11 @@ export function CreateRoomForm() {
   }
 
   return (
-    <form className="create-form" onSubmit={handleSubmit}>
+    <form
+      className="create-form"
+      onSubmit={handleSubmit}
+      autoComplete="off"
+    >
       <section className="form-section">
         <div className="form-section__heading">
           <span>01</span>
@@ -166,11 +170,11 @@ export function CreateRoomForm() {
         <div className="field-grid">
           <InputField
             id="gitToken"
-            name="gitToken"
+            name="spp-github-token"
             label="Token do GitHub"
             type="password"
             placeholder="Opcional"
-            autoComplete="off"
+            autoComplete="new-password"
             hint="Opcional — PAT para repositórios privados do GitHub. Código local (zip/pasta) não precisa de token."
           />
         </div>
