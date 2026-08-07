@@ -7,16 +7,34 @@ type ParticipantsProps = {
   players: ClientPlayer[];
   hostId: string;
   revealed: boolean;
+  variant?: "sidebar" | "table";
+  onExpand?: () => void;
 };
 
-export function Participants({ players, hostId, revealed }: ParticipantsProps) {
+export function Participants({
+  players,
+  hostId,
+  revealed,
+  variant = "sidebar",
+  onExpand,
+}: ParticipantsProps) {
   const stats = revealed ? computeVoteStats(players) : null;
+  const isTable = variant === "table";
 
   return (
-    <section className="panel participants">
+    <section
+      className={`panel participants${isTable ? " participants--table" : ""}`}
+    >
       <div className="panel__heading">
         <h2>Participantes</h2>
-        <span className="participants__count">{players.length}</span>
+        <div className="participants__heading-actions">
+          <span className="participants__count">{players.length}</span>
+          {!isTable && onExpand ? (
+            <button type="button" className="text-link" onClick={onExpand}>
+              Expandir mesa
+            </button>
+          ) : null}
+        </div>
       </div>
 
       {stats && stats.votesCast > 0 ? (
@@ -38,29 +56,35 @@ export function Participants({ players, hostId, revealed }: ParticipantsProps) {
         {players.map((player) => (
           <li
             key={player.id}
-            className={`participant ${!player.connected ? "is-offline" : ""}`}
+            className={`participant${isTable ? " participant--table" : ""}${
+              !player.connected ? " is-offline" : ""
+            }`}
           >
-            <span className="participant__avatar" aria-hidden="true">
-              {player.avatar.type === "gif" ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={player.avatar.value} alt="" />
-              ) : (
-                <span>{player.avatar.value}</span>
-              )}
-            </span>
-            <span className="participant__name">
-              {player.name}
-              <span className="participant__badges">
-                {player.id === hostId ? (
-                  <span className="tag tag--host">Anfitrião</span>
-                ) : null}
-                {!player.connected ? (
-                  <span className="tag tag--muted">Offline</span>
-                ) : null}
+            <div className="participant__info">
+              <span className="participant__avatar" aria-hidden="true">
+                {player.avatar.type === "gif" ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={player.avatar.value} alt="" />
+                ) : (
+                  <span>{player.avatar.value}</span>
+                )}
               </span>
-            </span>
+              <span className="participant__name">
+                {player.name}
+                <span className="participant__badges">
+                  {player.id === hostId ? (
+                    <span className="tag tag--host">Anfitrião</span>
+                  ) : null}
+                  {!player.connected ? (
+                    <span className="tag tag--muted">Offline</span>
+                  ) : null}
+                </span>
+              </span>
+            </div>
             <span
-              className={`participant__vote ${player.vote !== null ? "has-vote" : ""}`}
+              className={`participant__vote${
+                isTable ? " participant__vote--xl" : ""
+              }${player.vote !== null ? " has-vote" : ""}`}
             >
               {player.vote !== null ? player.vote : player.hasVoted ? "🂠" : "…"}
             </span>

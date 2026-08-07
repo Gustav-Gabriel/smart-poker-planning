@@ -7,6 +7,7 @@ import { StoryPanel } from "@/components/room/story-panel";
 import { SuggestionsPanel } from "@/components/room/suggestions-panel";
 import { VoteDeck } from "@/components/room/vote-deck";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Button } from "@/components/ui/button";
 import {
   getSelectedContents,
   localRepoKey,
@@ -95,6 +96,7 @@ export function GameRoom({
   const [deepError, setDeepError] = useState("");
   const [voteError, setVoteError] = useState("");
   const [roomLostError, setRoomLostError] = useState("");
+  const [tableView, setTableView] = useState(false);
   const playerIdRef = useRef(player.id);
   const playerTokenRef = useRef(playerToken);
 
@@ -272,7 +274,7 @@ export function GameRoom({
   }
 
   return (
-    <div className="room">
+    <div className={`room${tableView ? " room--table" : ""}`}>
       <header className="room__header">
         <div>
           <p className="eyebrow">
@@ -291,55 +293,96 @@ export function GameRoom({
         </div>
       </header>
 
-      <div className="room__layout">
-        <div className="room__main">
-          <StoryPanel
-            story={room.story}
-            isHost={isHost}
-            roomCode={code}
-            hostToken={hostToken}
-          />
-          {isHost ? (
-            <HostControls
+      {tableView ? (
+        <div className="room__layout room__layout--table">
+          <div className="room__table">
+            <Participants
+              players={room.players}
+              hostId={room.hostId}
+              revealed={room.revealed}
+              variant="table"
+            />
+          </div>
+          <footer className="room__table-footer">
+            <VoteDeck
+              cards={room.deckCards}
+              selected={self.vote}
+              disabled={room.revealed}
+              onVote={handleVote}
+            />
+            {voteError ? (
+              <p className="form-error" role="alert">
+                {voteError}
+              </p>
+            ) : null}
+            <div className="room__table-actions">
+              {isHost && !room.revealed ? (
+                <Button type="button" onClick={handleReveal}>
+                  Revelar votos
+                </Button>
+              ) : null}
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setTableView(false)}
+              >
+                Voltar
+              </Button>
+            </div>
+          </footer>
+        </div>
+      ) : (
+        <div className="room__layout">
+          <div className="room__main">
+            <StoryPanel
+              story={room.story}
+              isHost={isHost}
               roomCode={code}
               hostToken={hostToken}
-              repos={room.repos}
+            />
+            {isHost ? (
+              <HostControls
+                roomCode={code}
+                hostToken={hostToken}
+                repos={room.repos}
+                revealed={room.revealed}
+                deepPending={deepPending}
+                deepError={deepError}
+                onReveal={handleReveal}
+                onReset={handleReset}
+                onDeepAnalysis={handleDeepAnalysis}
+              />
+            ) : null}
+            <VoteDeck
+              cards={room.deckCards}
+              selected={self.vote}
+              disabled={room.revealed}
+              onVote={handleVote}
+            />
+            {voteError ? (
+              <p className="form-error" role="alert">
+                {voteError}
+              </p>
+            ) : null}
+            <SuggestionsPanel
+              suggestions={suggestions}
               revealed={room.revealed}
+              summaryPending={summaryPending}
+              summaryError={summaryError}
               deepPending={deepPending}
               deepError={deepError}
-              onReveal={handleReveal}
-              onReset={handleReset}
-              onDeepAnalysis={handleDeepAnalysis}
             />
-          ) : null}
-          <VoteDeck
-            cards={room.deckCards}
-            selected={self.vote}
-            disabled={room.revealed}
-            onVote={handleVote}
-          />
-          {voteError ? (
-            <p className="form-error" role="alert">
-              {voteError}
-            </p>
-          ) : null}
-          <SuggestionsPanel
-            suggestions={suggestions}
-            revealed={room.revealed}
-            summaryPending={summaryPending}
-            summaryError={summaryError}
-            deepPending={deepPending}
-            deepError={deepError}
-          />
+          </div>
+          <aside className="room__sidebar">
+            <Participants
+              players={room.players}
+              hostId={room.hostId}
+              revealed={room.revealed}
+              onExpand={() => setTableView(true)}
+            />
+          </aside>
         </div>
-        <aside className="room__sidebar">
-          <Participants
-            players={room.players}
-            hostId={room.hostId}
-            revealed={room.revealed}
-          />
-        </aside>
-      </div>
+      )}
     </div>
   );
 }
