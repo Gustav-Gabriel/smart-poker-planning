@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
+import { linkifyText } from "@/lib/linkify";
 import type { MutationAck } from "@/lib/room-ui";
 import { translateError } from "@/lib/room-ui";
 import { getSocket } from "@/lib/socket/client";
@@ -86,7 +87,9 @@ export function StoryPanel({ story, isHost, roomCode, hostToken }: StoryPanelPro
           </div>
           <h3>{story.title}</h3>
           {story.description ? (
-            <p className="story-card__description">{story.description}</p>
+            <p className="story-card__description">
+              {linkifyText(story.description)}
+            </p>
           ) : null}
           {story.labels.length > 0 ? (
             <div className="story-card__labels">
