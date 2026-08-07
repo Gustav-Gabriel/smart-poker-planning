@@ -610,6 +610,19 @@ a:focus-visible {
     box-shadow 160ms ease;
 }
 
+.field select {
+  padding-right: 2.75rem;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%2371717a' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1.1rem center;
+  background-size: 12px 8px;
+}
+
+[data-theme="dark"] .field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23a1a1aa' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
 .field input::placeholder {
   color: var(--color-text-placeholder);
 }
@@ -1166,35 +1179,47 @@ a:focus-visible {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  width: min(1200px, calc(100% - 32px));
+  width: calc(100% - 48px);
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 24px 0 0;
+  padding: 24px 0 40px;
   min-height: calc(100vh - 140px);
 }
 
 .room--table .room__table {
   flex: 1;
   min-width: 0;
-  padding-bottom: 12px;
+  padding-bottom: 8px;
 }
 
 .room--table .room__table-footer {
-  position: sticky;
-  bottom: 0;
-  z-index: 2;
+  position: static;
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 16px 0 28px;
-  background: linear-gradient(
-    to top,
-    var(--color-bg) 70%,
-    color-mix(in srgb, var(--color-bg) 80%, transparent)
-  );
+  gap: 12px;
+  padding: 8px 0 24px;
+  background: transparent;
 }
 
 .room--table .room__table-footer .vote-deck {
   margin: 0;
+}
+
+.room--table .vote-deck__cards {
+  gap: 8px;
+  justify-content: center;
+}
+
+.room--table .vote-card {
+  width: 48px;
+  height: 68px;
+  border-radius: 11px;
+  font-size: 1.15rem;
+}
+
+.room--table .vote-card:hover:not(:disabled) {
+  transform: translateY(-2px);
 }
 
 .room--table .room__table-actions {
@@ -1706,23 +1731,23 @@ a:focus-visible {
 .participants--table .participants__list {
   display: flex;
   flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: center;
-  align-items: stretch;
-  gap: 12px;
-  overflow-x: auto;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  align-items: flex-start;
+  gap: 20px 28px;
   width: 100%;
+  overflow-x: visible;
 }
 
 .participant--table {
-  flex: 1 1 0;
+  flex: 1 1 140px;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
   gap: 12px;
-  min-width: 4.5rem;
-  max-width: 8.5rem;
-  padding: 12px 10px;
+  min-width: 7rem;
+  max-width: 11rem;
+  padding: 14px 12px;
   border: 1px solid var(--color-border);
   border-radius: 16px;
   background: var(--color-surface, var(--color-bg));
@@ -1887,7 +1912,7 @@ a:focus-visible {
   }
 
   .room--table .room__layout--table {
-    width: min(1200px, calc(100% - 32px));
+    width: calc(100% - 32px);
   }
 
   .room--table .room__table-actions {
