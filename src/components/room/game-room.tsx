@@ -198,6 +198,11 @@ export function GameRoom({
     if (!hostToken) return;
     setSummaryPending(true);
     setSummaryError("");
+    setDeepError("");
+    const shouldEnrich = room.repos.length > 0;
+    if (shouldEnrich) {
+      setDeepPending(true);
+    }
     getSocket().emit(
       "vote:reveal",
       { roomCode: code, hostToken },
@@ -205,6 +210,11 @@ export function GameRoom({
         if (ack && "ok" in ack && !ack.ok) {
           setSummaryPending(false);
           setSummaryError(translateError(ack.error));
+          setDeepPending(false);
+          return;
+        }
+        if (shouldEnrich) {
+          void runDeepAnalysis();
         }
       },
     );
@@ -215,10 +225,11 @@ export function GameRoom({
     getSocket().emit("vote:reset", { roomCode: code, hostToken }, () => undefined);
     setSummaryPending(false);
     setSummaryError("");
+    setDeepPending(false);
     setDeepError("");
   }
 
-  async function handleDeepAnalysis() {
+  async function runDeepAnalysis() {
     if (!hostToken) return;
     setDeepPending(true);
     setDeepError("");
@@ -350,7 +361,9 @@ export function GameRoom({
                 deepError={deepError}
                 onReveal={handleReveal}
                 onReset={handleReset}
-                onDeepAnalysis={handleDeepAnalysis}
+                onDeepAnalysis={() => {
+                  void runDeepAnalysis();
+                }}
               />
             ) : null}
             <VoteDeck
@@ -371,6 +384,7 @@ export function GameRoom({
               summaryError={summaryError}
               deepPending={deepPending}
               deepError={deepError}
+              hasRepos={room.repos.length > 0}
             />
           </div>
           <aside className="room__sidebar">

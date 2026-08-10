@@ -48,6 +48,9 @@ export function parseAiJson(
 
   const optionalArrays = [
     "risks",
+    "forgottenDetails",
+    "impacts",
+    "dependencies",
     "unplannedWork",
     "openQuestions",
   ] as const;

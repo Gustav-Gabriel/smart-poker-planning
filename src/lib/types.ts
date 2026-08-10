@@ -44,6 +44,9 @@ export type AiSuggestion = {
       rationale: string;
     };
     risks?: string[];
+    forgottenDetails?: string[];
+    impacts?: string[];
+    dependencies?: string[];
     unplannedWork?: string[];
     relevantFiles?: { path: string; reason: string }[];
     openQuestions?: string[];

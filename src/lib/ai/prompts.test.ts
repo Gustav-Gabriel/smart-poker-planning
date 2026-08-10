@@ -10,6 +10,9 @@ describe("buildSummaryPrompt", () => {
     });
 
     expect(prompt).toContain("suggestedScore");
+    expect(prompt).toContain("forgottenDetails");
+    expect(prompt).toContain("impacts");
+    expect(prompt).toContain("dependencies");
     expect(prompt).toContain('"0"');
     expect(prompt).toContain('"21"');
     expect(prompt).not.toMatch(/allowedScores":\[[^\]]*"\?"/);
@@ -32,6 +35,9 @@ describe("buildDeepPrompt", () => {
     });
 
     expect(prompt).toContain("suggestedScore");
+    expect(prompt).toContain("forgottenDetails");
+    expect(prompt).toContain("impacts");
+    expect(prompt).toContain("dependencies");
     expect(prompt).toContain('"XS"');
     expect(prompt).toContain('"XL"');
     expect(prompt).toMatch(/revisar priorSummary\.suggestedScore/i);

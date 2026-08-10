@@ -53,7 +53,11 @@ describe("applyCaps", () => {
     // Stay under MAX_FILE_BYTES but exceed MAX_TOTAL_BYTES across files.
     const chunkSize = Math.min(MAX_FILE_BYTES, Math.floor(MAX_TOTAL_BYTES / 3));
     const chunk = "y".repeat(chunkSize);
-    const paths = ["a.ts", "b.ts", "c.ts", "d.ts", "e.ts", "f.ts"];
+    const fitCount = Math.floor(MAX_TOTAL_BYTES / chunkSize);
+    const paths = Array.from(
+      { length: fitCount + 3 },
+      (_, index) => `f${index}.ts`,
+    );
     const map = new Map(paths.map((path) => [path, chunk] as const));
     const result = applyCaps(map, paths);
     expect(result.files.length).toBeGreaterThan(0);
@@ -64,5 +68,23 @@ describe("applyCaps", () => {
       0,
     );
     expect(total).toBeLessThanOrEqual(MAX_TOTAL_BYTES);
+  });
+
+  it("prefers higher-priority paths when the total budget is tight", () => {
+    const chunk = "y".repeat(MAX_FILE_BYTES);
+    const fitCount = Math.floor(MAX_TOTAL_BYTES / MAX_FILE_BYTES);
+    const lowPaths = Array.from(
+      { length: fitCount },
+      (_, index) => `notes${index}.txt`,
+    );
+    const map = new Map<string, string>([
+      ["src/app.ts", chunk],
+      ...lowPaths.map((path) => [path, chunk] as const),
+    ]);
+    const result = applyCaps(map, [...lowPaths, "src/app.ts"]);
+    expect(result.files[0]?.path).toBe("src/app.ts");
+    expect(result.files.map((file) => file.path)).toContain("src/app.ts");
+    expect(result.omitted.length).toBeGreaterThan(0);
+    expect(result.omitted.every((path) => path.startsWith("notes"))).toBe(true);
   });
 });

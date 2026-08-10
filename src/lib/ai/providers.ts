@@ -13,7 +13,7 @@ import {
   type VoteContext,
 } from "./prompts";
 
-const AI_REQUEST_TIMEOUT_MS = 30_000;
+const AI_REQUEST_TIMEOUT_MS = 90_000;
 
 /**
  * Gemini Flash models to try in order. Google retires Flash IDs often;

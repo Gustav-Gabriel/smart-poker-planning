@@ -29,8 +29,9 @@ export function buildSummaryPrompt(input: {
   return `Gere um resumo curto após a revelação dos votos.
 Responda em português.
 O JSON deve ter exatamente esta forma:
-{"consensusNote":"string","discussionPoints":["string"],"suggestedScore":{"value":"string","rationale":"string"}}
+{"consensusNote":"string","discussionPoints":["string"],"suggestedScore":{"value":"string","rationale":"string"},"risks":["string"],"forgottenDetails":["string"],"impacts":["string"],"dependencies":["string"]}
 Inclua de 3 a 5 pontos de discussão quando houver informação suficiente.
+Inclua riscos, detalhes que a história pode ter esquecido, impactos em outros fluxos e dependências de outros projetos/sistemas — com base em Jira + votos (sem inventar certeza).
 suggestedScore.value DEVE ser exatamente um destes valores permitidos: ${JSON.stringify(allowedScores)}.
 Não use "?" nem "☕" como sugestão de pontuação.
 Baseie suggestedScore nos votos; se houver story (Jira), incorpore título/descrição/labels na justificativa.
@@ -51,8 +52,9 @@ export function buildDeepPrompt(input: {
   return `Faça uma análise técnica aprofundada para apoiar a estimativa.
 Responda em português.
 O JSON deve ter esta forma:
-{"consensusNote":"string","discussionPoints":["string"],"suggestedScore":{"value":"string","rationale":"string"},"risks":["string"],"unplannedWork":["string"],"relevantFiles":[{"path":"string","reason":"string"}],"openQuestions":["string"],"estimateTension":"string"}
+{"consensusNote":"string","discussionPoints":["string"],"suggestedScore":{"value":"string","rationale":"string"},"risks":["string"],"forgottenDetails":["string"],"impacts":["string"],"dependencies":["string"],"unplannedWork":["string"],"relevantFiles":[{"path":"string","reason":"string"}],"openQuestions":["string"],"estimateTension":"string"}
 Relacione conclusões a arquivos fornecidos. Considere os arquivos omitidos uma limitação da análise.
+Em risks, forgottenDetails, impacts e dependencies, destaque riscos técnicos, detalhes esquecidos na história, impactos em outros fluxos e dependências entre módulos/projetos com evidência no código quando possível.
 suggestedScore.value DEVE ser exatamente um destes valores permitidos: ${JSON.stringify(allowedScores)}.
 Não use "?" nem "☕" como sugestão de pontuação.
 Você pode revisar priorSummary.suggestedScore quando houver story (Jira) e/ou arquivos de repositório; cite evidências brevemente em rationale.

@@ -1,4 +1,42 @@
-const SKIP_DIR_SEGMENTS = new Set([".git", "node_modules"]);
+const SKIP_DIR_SEGMENTS = new Set([
+  ".git",
+  "node_modules",
+  "dist",
+  "build",
+  ".next",
+  "coverage",
+  ".turbo",
+  ".cache",
+  "vendor",
+  "target",
+  "out",
+  ".vercel",
+  ".output",
+  "__pycache__",
+  ".venv",
+  "venv",
+  "Pods",
+  "DerivedData",
+  ".idea",
+  ".gradle",
+  "bower_components",
+]);
+
+const SKIP_BASENAMES = new Set([
+  "package-lock.json",
+  "yarn.lock",
+  "pnpm-lock.yaml",
+  "bun.lock",
+  "bun.lockb",
+  "Cargo.lock",
+  "poetry.lock",
+  "composer.lock",
+  "Gemfile.lock",
+  "Pipfile.lock",
+  ".DS_Store",
+  "Thumbs.db",
+  "desktop.ini",
+]);
 
 const BINARY_EXTENSIONS = new Set([
   "png",
@@ -40,6 +78,8 @@ const BINARY_EXTENSIONS = new Set([
   "a",
   "pyc",
   "pyo",
+  "map",
+  "lock",
 ]);
 
 /** Normalize to forward slashes and strip a leading `./`. */
@@ -49,7 +89,7 @@ export function normalizeRepoPath(path: string): string {
 
 /**
  * Returns true when a path should be excluded from local tree listing
- * (VCS / dependency dirs and common binary extensions).
+ * (VCS / dependency / build dirs, lockfiles, and common binaries).
  */
 export function shouldSkipPath(path: string): boolean {
   const normalized = normalizeRepoPath(path);
@@ -63,6 +103,14 @@ export function shouldSkipPath(path: string): boolean {
   }
 
   const base = segments[segments.length - 1] ?? "";
+  if (SKIP_BASENAMES.has(base)) {
+    return true;
+  }
+
+  if (base.endsWith(".min.js") || base.endsWith(".min.css")) {
+    return true;
+  }
+
   const dot = base.lastIndexOf(".");
   if (dot <= 0) {
     return false;

@@ -3,6 +3,7 @@ import {
   MAX_FILES,
   MAX_TOTAL_BYTES,
 } from "@/lib/repo-caps";
+import { prioritizePaths } from "@/lib/local-repo/prioritize-paths";
 import { parseGithubUrl } from "./parse-url";
 
 export { MAX_FILE_BYTES, MAX_FILES, MAX_TOTAL_BYTES };
@@ -127,7 +128,7 @@ export async function fetchSelectedContents(input: {
   const omitted: string[] = [];
   let totalBytes = 0;
 
-  for (const path of input.paths) {
+  for (const path of prioritizePaths(input.paths)) {
     if (files.length >= MAX_FILES) {
       omitted.push(path);
       continue;

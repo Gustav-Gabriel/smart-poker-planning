@@ -207,6 +207,16 @@ export function HostControls({
     );
   }
 
+  function handleSelectAll() {
+    if (!tree) return;
+    const targets = pathFilter.trim() ? filteredPaths : tree.paths;
+    setSelectedPaths(targets);
+  }
+
+  function handleClearSelection() {
+    setSelectedPaths([]);
+  }
+
   function handleSaveRepo() {
     if (!hostToken || !tree || selectedPaths.length === 0) return;
 
@@ -389,7 +399,7 @@ export function HostControls({
               novo para análise profunda.
             </p>
             <p className="host-controls__local-hint">
-              Prefira um zip sem node_modules/.git (até 200MB).
+              Prefira um zip sem node_modules/.git/dist (até 200MB). O envio à IA prioriza código e respeita um teto de contexto.
             </p>
             <div className="host-controls__local-actions">
               <Button
@@ -459,6 +469,24 @@ export function HostControls({
               ))}
             </ul>
             <div className="repo-picker__footer">
+              <div className="repo-picker__footer-actions">
+                <button
+                  type="button"
+                  className="text-link"
+                  onClick={handleSelectAll}
+                  disabled={!tree || filteredPaths.length === 0}
+                >
+                  Selecionar tudo
+                </button>
+                <button
+                  type="button"
+                  className="text-link"
+                  onClick={handleClearSelection}
+                  disabled={selectedPaths.length === 0}
+                >
+                  Limpar
+                </button>
+              </div>
               <span>{selectedPaths.length} selecionado(s)</span>
               <Button
                 type="button"
