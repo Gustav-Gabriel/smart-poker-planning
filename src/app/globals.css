@@ -1031,19 +1031,21 @@ a:focus-visible {
   left: 0;
   right: 0;
   max-height: min(60vh, 360px);
-  overflow-x: hidden;
+  overflow-x: auto;
   overflow-y: auto;
   padding: 12px;
   border: 1px solid var(--color-border);
   border-radius: 14px;
   background: var(--color-card-solid, var(--color-bg));
   box-shadow: 0 16px 40px color-mix(in srgb, var(--color-text) 12%, transparent);
+  -webkit-overflow-scrolling: touch;
 }
 
 .avatar-picker__grid {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
+  grid-template-columns: repeat(8, minmax(2.75rem, 1fr));
   gap: 8px;
+  min-width: calc(8 * 2.75rem + 7 * 8px);
 }
 
 .avatar-picker__option {
@@ -1584,11 +1586,20 @@ a:focus-visible {
 
 .repo-picker__footer {
   display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
   align-items: center;
   justify-content: space-between;
   margin-top: 12px;
   color: var(--color-gray-muted);
   font-size: 0.82rem;
+}
+
+.repo-picker__footer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
 }
 
 /* Vote deck */
@@ -1953,7 +1964,8 @@ a:focus-visible {
   }
 
   .avatar-picker__grid {
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(6, minmax(2.75rem, 1fr));
+    min-width: calc(6 * 2.75rem + 5 * 8px);
   }
 
   .room--table .room__layout--table {
@@ -1992,7 +2004,8 @@ a:focus-visible {
   }
 
   .avatar-picker__grid {
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(5, minmax(2.75rem, 1fr));
+    min-width: calc(5 * 2.75rem + 4 * 8px);
   }
 
   .avatar-picker__gif-grid {
