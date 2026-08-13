@@ -301,7 +301,7 @@ export function GameRoom({
                 className="button--secondary__table"
                 onClick={() => setTableView(false)}
               >
-                <ChevronLeftIcon height={20} width={20} />
+                <ChevronLeftIcon className="button__icon" height="1.1em" width="1.1em" />
                 Voltar ao modo painel
               </Button>
               {isHost && !room.revealed ? (
