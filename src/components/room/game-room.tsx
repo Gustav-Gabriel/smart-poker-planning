@@ -22,6 +22,7 @@ import type {
   Player,
   RepoAttachment,
 } from "@/lib/types";
+import { ChevronLeftIcon } from "../icons/ic-chevron-left";
 
 /** Build localFiles payload for deep analysis from host in-memory store. */
 export function buildLocalFilesPayload(
@@ -292,6 +293,23 @@ export function GameRoom({
             <span aria-hidden="true">✦</span> {room.name}
           </p>
           <h1>Sala {room.code}</h1>
+          {tableView && (
+            <div className="room__table-actions">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setTableView(false)}
+              >
+                <ChevronLeftIcon height={20} width={20} />
+                Voltar ao modo painel
+              </Button>
+              {isHost && !room.revealed ? (
+                <Button type="button" onClick={handleReveal}>
+                  Revelar votos
+                </Button>
+              ) : null}
+            </div>
+          )}
         </div>
         <div className="room__header-actions">
           <ThemeToggle />
@@ -326,20 +344,6 @@ export function GameRoom({
                 {voteError}
               </p>
             ) : null}
-            <div className="room__table-actions">
-              {isHost && !room.revealed ? (
-                <Button type="button" onClick={handleReveal}>
-                  Revelar votos
-                </Button>
-              ) : null}
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => setTableView(false)}
-              >
-                Voltar
-              </Button>
-            </div>
           </footer>
         </div>
       ) : (
