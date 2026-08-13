@@ -18,7 +18,8 @@ export const metadata: Metadata = {
   description:
     "Planning poker com IA e contexto do Jira e dos seus repositórios.",
   icons: {
-    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    shortcut: [{ url: "/favicon.svg", type: "image/svg+xml" }],
   },
 };
 
