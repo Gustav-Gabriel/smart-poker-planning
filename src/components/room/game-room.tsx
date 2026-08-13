@@ -288,7 +288,7 @@ export function GameRoom({
   return (
     <div className={`room${tableView ? " room--table" : ""}`}>
       <header className="room__header">
-        <div>
+        <div className="room__header-identity">
           <p className="eyebrow">
             <span aria-hidden="true">✦</span> {room.name}
           </p>

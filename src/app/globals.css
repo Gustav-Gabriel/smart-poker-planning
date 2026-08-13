@@ -1179,6 +1179,13 @@ a:focus-visible {
   align-items: center;
 }
 
+.room__header-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: start;
+}
+
 .room__layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
@@ -1266,7 +1273,7 @@ a:focus-visible {
 }
 
 .room--table .vote-card:hover:not(:disabled) {
-  transform: translateY(-20px) rotate(6deg);
+  transform: translateY(-40px) rotate(6deg) scale(1.5);
 }
 
 .room--table .room__table-actions {
@@ -1655,7 +1662,7 @@ a:focus-visible {
 
 .vote-card:hover:not(:disabled) {
   border-color: var(--color-purple-hover-border);
-  transform: translateY(-4px);
+  transform: translateY(-10px) rotate(3deg) scale(1.2);
 }
 
 .vote-card.is-selected {
