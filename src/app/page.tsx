@@ -59,7 +59,7 @@ export default function Home() {
         <span>IA a favor da conversa</span>
       </footer>
 
-      <p className="landing__credit">By GG</p>
+      <p className="landing__credit">by GG</p>
     </main>
   );
 }
