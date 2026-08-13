@@ -341,6 +341,11 @@ select {
   backdrop-filter: blur(8px);
 }
 
+.button--secondary__table {
+  gap: 2px;
+  justify-items: center;
+}
+
 .button:focus-visible,
 input:focus-visible,
 select:focus-visible,

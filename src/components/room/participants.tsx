@@ -32,7 +32,7 @@ export function Participants({
           <span className="participants__count">{players.length}</span>
           {!isTable && onExpand ? (
             <button type="button" className="text-link" onClick={onExpand}>
-              Expandir mesa
+              Modo mesa
             </button>
           ) : null}
         </div>

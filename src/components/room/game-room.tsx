@@ -298,6 +298,7 @@ export function GameRoom({
               <Button
                 type="button"
                 variant="secondary"
+                className="button--secondary__table"
                 onClick={() => setTableView(false)}
               >
                 <ChevronLeftIcon height={20} width={20} />
