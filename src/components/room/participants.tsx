@@ -23,9 +23,10 @@ export function Participants({
 
   return (
     <section
-      className={`panel participants${isTable ? " participants--table" : ""}`}
+      className={`panel participants${isTable ? " panel__table participants--table" : ""}`}
     >
-      <div className="panel__heading">
+      {!isTable && (
+        <div className="panel__heading">
         <h2>Participantes</h2>
         <div className="participants__heading-actions">
           <span className="participants__count">{players.length}</span>
@@ -36,6 +37,7 @@ export function Participants({
           ) : null}
         </div>
       </div>
+      )}
 
       {stats && stats.votesCast > 0 ? (
         <div className="participants__stats">
