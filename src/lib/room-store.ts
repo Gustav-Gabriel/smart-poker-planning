@@ -253,6 +253,10 @@ export function resetVotes(
   for (const player of room.players.values()) {
     player.vote = null;
   }
+  // New round clears story context so the next vote starts clean.
+  room.story = null;
+  room.repos = [];
+  room.suggestions = [];
   touchRoom(room.code);
 
   return { ok: true };
@@ -273,6 +277,11 @@ export function setStory(
   }
 
   room.story = story;
+  if (story) {
+    // Importing a Jira ticket resets attached code + prior AI suggestions.
+    room.repos = [];
+    room.suggestions = [];
+  }
   touchRoom(room.code);
 
   return { ok: true };

@@ -1,5 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { buildDeepPrompt, buildSummaryPrompt } from "./prompts";
+import {
+  AI_SYSTEM_PROMPT,
+  buildDeepPrompt,
+  buildSummaryPrompt,
+} from "./prompts";
+
+describe("AI_SYSTEM_PROMPT", () => {
+  it("requires multi-lens senior review and complexity-first scoring", () => {
+    expect(AI_SYSTEM_PROMPT).toMatch(/QA sênior/i);
+    expect(AI_SYSTEM_PROMPT).toMatch(/arquiteto sênior/i);
+    expect(AI_SYSTEM_PROMPT).toMatch(/Desenvolvedor sênior/i);
+    expect(AI_SYSTEM_PROMPT).toMatch(/NÃO são âncora/i);
+  });
+});
 
 describe("buildSummaryPrompt", () => {
   it("includes suggestedScore schema and fibonacci allowed scores", () => {
@@ -13,6 +26,9 @@ describe("buildSummaryPrompt", () => {
     expect(prompt).toContain("forgottenDetails");
     expect(prompt).toContain("impacts");
     expect(prompt).toContain("dependencies");
+    expect(prompt).toMatch(/QA sênior/i);
+    expect(prompt).toMatch(/arquiteto sênior/i);
+    expect(prompt).toMatch(/NÃO são âncora|não são âncora|votos servem só como contraste/i);
     expect(prompt).toContain('"0"');
     expect(prompt).toContain('"21"');
     expect(prompt).not.toMatch(/allowedScores":\[[^\]]*"\?"/);
@@ -38,6 +54,7 @@ describe("buildDeepPrompt", () => {
     expect(prompt).toContain("forgottenDetails");
     expect(prompt).toContain("impacts");
     expect(prompt).toContain("dependencies");
+    expect(prompt).toMatch(/QA sênior/i);
     expect(prompt).toContain('"XS"');
     expect(prompt).toContain('"XL"');
     expect(prompt).toMatch(/revisar priorSummary\.suggestedScore/i);

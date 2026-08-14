@@ -7,6 +7,8 @@ import {
   resetVotes,
   rejoinRoom,
   getRoom,
+  setStory,
+  setRepos,
   _resetStoreForTests,
 } from "./room-store";
 import { toClientSnapshot } from "./room-snapshot";
@@ -71,6 +73,104 @@ describe("room-store", () => {
     resetVotes(created.room.code, created.hostToken);
     expect(getRoom(created.room.code)!.revealed).toBe(false);
     expect(getRoom(created.room.code)!.players.get(created.player.id)!.vote).toBeNull();
+  });
+
+  it("clears story, repos and suggestions on new round", () => {
+    const created = createRoom({
+      name: "R",
+      deck: "fibonacci",
+      hostName: "Host",
+      hostAvatar: { type: "emoji", value: "👑" },
+      secrets: {
+        aiProvider: "gemini",
+        aiApiKey: "k",
+        jiraSite: "https://x.atlassian.net",
+        jiraEmail: "h@x.com",
+        jiraToken: "t",
+      },
+    });
+    setStory(created.room.code, created.hostToken, {
+      jiraKey: "PROJ-1",
+      jiraUrl: "https://x.atlassian.net/browse/PROJ-1",
+      title: "Title",
+      description: "Desc",
+      labels: [],
+    });
+    setRepos(created.room.code, created.hostToken, [
+      {
+        provider: "local",
+        url: "local://app",
+        owner: "local",
+        repo: "app",
+        ref: "local",
+        selectedPaths: ["src/a.ts"],
+      },
+    ]);
+    const room = getRoom(created.room.code)!;
+    room.suggestions.push({
+      kind: "summary",
+      createdAt: Date.now(),
+      payload: {
+        consensusNote: "ok",
+        discussionPoints: [],
+        suggestedScore: { value: "5", rationale: "x" },
+      },
+    });
+
+    resetVotes(created.room.code, created.hostToken);
+    const cleared = getRoom(created.room.code)!;
+    expect(cleared.story).toBeNull();
+    expect(cleared.repos).toEqual([]);
+    expect(cleared.suggestions).toEqual([]);
+  });
+
+  it("clears repos and suggestions when importing a Jira story", () => {
+    const created = createRoom({
+      name: "R",
+      deck: "fibonacci",
+      hostName: "Host",
+      hostAvatar: { type: "emoji", value: "👑" },
+      secrets: {
+        aiProvider: "gemini",
+        aiApiKey: "k",
+        jiraSite: "https://x.atlassian.net",
+        jiraEmail: "h@x.com",
+        jiraToken: "t",
+      },
+    });
+    setRepos(created.room.code, created.hostToken, [
+      {
+        provider: "github",
+        url: "https://github.com/a/b",
+        owner: "a",
+        repo: "b",
+        ref: "main",
+        selectedPaths: ["x.ts"],
+      },
+    ]);
+    const room = getRoom(created.room.code)!;
+    room.suggestions.push({
+      kind: "deep",
+      createdAt: Date.now(),
+      payload: {
+        consensusNote: "old",
+        discussionPoints: [],
+        suggestedScore: { value: "3", rationale: "old" },
+      },
+    });
+
+    setStory(created.room.code, created.hostToken, {
+      jiraKey: "PROJ-9",
+      jiraUrl: "https://x.atlassian.net/browse/PROJ-9",
+      title: "Nova",
+      description: "",
+      labels: ["api"],
+    });
+
+    const updated = getRoom(created.room.code)!;
+    expect(updated.story?.jiraKey).toBe("PROJ-9");
+    expect(updated.repos).toEqual([]);
+    expect(updated.suggestions).toEqual([]);
   });
 
   it("rejects casting a vote after votes are revealed", () => {

@@ -9,6 +9,7 @@ import { VoteDeck } from "@/components/room/vote-deck";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import {
+  clearAll as clearAllLocalRepos,
   getSelectedContents,
   localRepoKey,
 } from "@/lib/local-repo/host-content-store";
@@ -223,11 +224,13 @@ export function GameRoom({
 
   function handleReset() {
     if (!hostToken) return;
+    clearAllLocalRepos();
     getSocket().emit("vote:reset", { roomCode: code, hostToken }, () => undefined);
     setSummaryPending(false);
     setSummaryError("");
     setDeepPending(false);
     setDeepError("");
+    setSuggestions([]);
   }
 
   async function runDeepAnalysis() {

@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import { ChevronDownIcon } from "@/components/icons/ic-chevron-down";
 import { Button } from "@/components/ui/button";
+import { clearAll as clearLocalRepoContents } from "@/lib/local-repo/host-content-store";
 import { linkifyText } from "@/lib/linkify";
 import type { MutationAck } from "@/lib/room-ui";
 import { translateError } from "@/lib/room-ui";
@@ -19,6 +21,12 @@ export function StoryPanel({ story, isHost, roomCode, hostToken }: StoryPanelPro
   const [issueInput, setIssueInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    // New import starts collapsed so the expand affordance is obvious.
+    setExpanded(false);
+  }, [story?.jiraKey]);
 
   async function handleImport(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -42,6 +50,8 @@ export function StoryPanel({ story, isHost, roomCode, hostToken }: StoryPanelPro
         return;
       }
       setIssueInput("");
+      // Importing a ticket clears attached repos + AI suggestions (server) and local zip memory.
+      clearLocalRepoContents();
       getSocket().emit(
         "story:set",
         { roomCode, hostToken, story: data },
@@ -77,37 +87,58 @@ export function StoryPanel({ story, isHost, roomCode, hostToken }: StoryPanelPro
       </div>
 
       {story ? (
-        <div className="story-card">
-          <div className="story-card__meta">
-            <span className="story-card__key">{story.jiraKey}</span>
-            {story.issueType ? <span className="tag">{story.issueType}</span> : null}
-            {story.status ? (
-              <span className="tag tag--muted">{story.status}</span>
-            ) : null}
-          </div>
-          <h3>{story.title}</h3>
-          {story.description ? (
-            <p className="story-card__description">
-              {linkifyText(story.description)}
-            </p>
-          ) : null}
-          {story.labels.length > 0 ? (
-            <div className="story-card__labels">
-              {story.labels.map((label) => (
-                <span key={label} className="tag tag--outline">
-                  {label}
-                </span>
-              ))}
-            </div>
-          ) : null}
-          <a
-            className="text-link"
-            href={story.jiraUrl}
-            target="_blank"
-            rel="noreferrer"
+        <div className={`story-card${expanded ? " is-expanded" : " is-collapsed"}`}>
+          <button
+            type="button"
+            className="story-card__summary"
+            aria-expanded={expanded}
+            onClick={() => setExpanded((current) => !current)}
           >
-            Abrir no Jira ↗
-          </a>
+            <span className="story-card__summary-text">
+              <span className="story-card__key">{story.jiraKey}</span>
+              <span className="story-card__summary-title">{story.title}</span>
+            </span>
+            <span
+              className={`story-card__chevron${expanded ? " is-open" : ""}`}
+              aria-hidden="true"
+            >
+              <ChevronDownIcon height="1.15em" width="1.15em" />
+            </span>
+          </button>
+
+          <div className="story-card__details" inert={!expanded ? true : undefined}>
+            <div className="story-card__details-inner">
+              <div className="story-card__meta">
+                {story.issueType ? <span className="tag">{story.issueType}</span> : null}
+                {story.status ? (
+                  <span className="tag tag--muted">{story.status}</span>
+                ) : null}
+              </div>
+              {story.description ? (
+                <p className="story-card__description">
+                  {linkifyText(story.description)}
+                </p>
+              ) : null}
+              {story.labels.length > 0 ? (
+                <div className="story-card__labels">
+                  {story.labels.map((label) => (
+                    <span key={label} className="tag tag--outline">
+                      {label}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+              <a
+                className="text-link"
+                href={story.jiraUrl}
+                target="_blank"
+                rel="noreferrer"
+                onClick={(event) => event.stopPropagation()}
+              >
+                Abrir no Jira ↗
+              </a>
+            </div>
+          </div>
         </div>
       ) : (
         <p className="panel__empty">Nenhuma história importada ainda.</p>
