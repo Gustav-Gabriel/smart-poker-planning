@@ -13,8 +13,12 @@ import {
   getSelectedContents,
   localRepoKey,
 } from "@/lib/local-repo/host-content-store";
-import type { MutationAck } from "@/lib/room-ui";
-import { mergeSuggestions, translateError } from "@/lib/room-ui";
+import {
+  mergeSuggestions,
+  shouldStartInTableView,
+  translateError,
+  type MutationAck,
+} from "@/lib/room-ui";
 import { clearSession } from "@/lib/session-client";
 import { getSocket } from "@/lib/socket/client";
 import type {
@@ -98,7 +102,13 @@ export function GameRoom({
   const [deepError, setDeepError] = useState("");
   const [voteError, setVoteError] = useState("");
   const [roomLostError, setRoomLostError] = useState("");
-  const [tableView, setTableView] = useState(false);
+  const [tableView, setTableView] = useState(() =>
+    shouldStartInTableView({
+      hostId: initialRoom.hostId,
+      playerId: player.id,
+      hostToken,
+    }),
+  );
   const playerIdRef = useRef(player.id);
   const playerTokenRef = useRef(playerToken);
 

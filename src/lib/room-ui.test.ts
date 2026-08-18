@@ -5,6 +5,7 @@ import {
   latestSuggestion,
   mergeSuggestions,
   normalizeRoomCode,
+  shouldStartInTableView,
   translateError,
 } from "./room-ui";
 import type { AiSuggestion, ClientPlayer } from "./types";
@@ -32,6 +33,37 @@ function player(overrides: Partial<ClientPlayer> = {}): ClientPlayer {
 describe("normalizeRoomCode", () => {
   it("trims, uppercases, and strips whitespace", () => {
     expect(normalizeRoomCode("  a1 b2c3  ")).toBe("A1B2C3");
+  });
+});
+
+describe("shouldStartInTableView", () => {
+  it("starts the host in panel mode", () => {
+    expect(
+      shouldStartInTableView({
+        hostId: "host-1",
+        playerId: "host-1",
+        hostToken: "token",
+      }),
+    ).toBe(false);
+  });
+
+  it("starts a participant in table mode", () => {
+    expect(
+      shouldStartInTableView({
+        hostId: "host-1",
+        playerId: "player-2",
+        hostToken: undefined,
+      }),
+    ).toBe(true);
+  });
+
+  it("starts the host player without a host token in table mode", () => {
+    expect(
+      shouldStartInTableView({
+        hostId: "host-1",
+        playerId: "host-1",
+      }),
+    ).toBe(true);
   });
 });
 

@@ -24,6 +24,16 @@ export function normalizeRoomCode(input: string): string {
   return input.trim().toUpperCase().replace(/\s+/g, "");
 }
 
+export function shouldStartInTableView(options: {
+  hostId: string;
+  playerId: string;
+  hostToken?: string;
+}): boolean {
+  const isHost =
+    options.hostId === options.playerId && Boolean(options.hostToken);
+  return !isHost;
+}
+
 export type VoteStats = {
   votesCast: number;
   average: number | null;
