@@ -105,13 +105,7 @@ export function Participants({
                       : `${player.name} ainda não votou`
                 }
               >
-                {facedown ? (
-                  <span className="participant__vote-back" aria-hidden="true" />
-                ) : revealedValue ? (
-                  player.vote
-                ) : (
-                  "…"
-                )}
+                {facedown ? null : revealedValue ? player.vote : "…"}
               </span>
             </li>
           );
